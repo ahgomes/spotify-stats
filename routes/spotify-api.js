@@ -36,6 +36,7 @@ router.get('/', async (req, res) => {
             // let track_names = tracks.items.map(x => x.name);
             // res.render('partials/top-list', { title: 'Top Tracks', names: track_names });
             //user_data.create_user(user_id);
+            const top_update = await user_data.update_top(user_id, access_token);
             const user = await user_data.get_user(user_id);
             res.json(user);
         } catch (e) {
