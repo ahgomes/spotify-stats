@@ -1,3 +1,7 @@
+const spotify_data = require('./spotify');
 const user_data = require('./user');
 
-module.exports = user_data;
+module.exports = {
+    spotify_data,
+    user_data,
+};

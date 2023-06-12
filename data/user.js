@@ -1,43 +1,56 @@
-const axios = require('axios');
-const { log } = require('console');
-const querystring = require('querystring');
+const mongoCollections = require('../config/mongoCollections');
+const users = mongoCollections.users;
 
+const validate = require('./validate');
 
-async function get_auth(code, redirect_uri, auth_token) {
-    const url = 'https://accounts.spotify.com/api/token';
-    const body = querystring.stringify({
-        code: code,
-        redirect_uri: redirect_uri,
-        grant_type: 'authorization_code'
+async function create_user(id) {
+    const username = validate.check_string_nonempty(id, 'username');
+
+    const user_collection = await users();
+    const existing_user = await user_collection.findOne({
+        username: username,
     });
 
-    const response = await axios.post(url, body, {
-        headers: {
-            Authorization: `Basic ${auth_token}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
+    if (existing_user != null)
+        throw new Error('A user with that username already exists');
+
+    let new_user = {
+        username: username,
+        top: {
+            date: new Date(),
+            artists: {
+                short_term: [],
+                medium_term: [],
+                long_term: [],
+            },
+            tracks: {
+                short_term: [],
+                medium_term: [],
+                long_term: [],
+            },
         }
-    });
+    };
 
-    return response.data;
+    const insertUser = await user_collection.insertOne(new_user);
+    if (insertUser.insertedCount == 0)
+        throw new Error('Could not create user');
+    return { userInserted: true };
 }
 
-async function get_top_tracks(access_token, time_range, limit, offset) {
-    const url = 'https://api.spotify.com/v1/me/top/tracks';
-    const response = await axios.get(url, {
-        params: {
-            time_range: time_range,
-            limit: limit,
-            offset: offset
-        },
-        headers: {
-            Authorization: `Bearer ${access_token}`
-        }
+async function get_user(id) {
+    const username = validate.check_string_nonempty(id, 'username');
+
+    const user_collection = await users();
+    const user = await user_collection.findOne({
+        username: username,
     });
 
-    return response.data;
+    if (!user)
+        throw new Error(`Could not find user with id '${username}'.`);
+    return user;
 }
 
 module.exports = {
-    get_auth,
-    get_top_tracks,
-};
+    create_user,
+    get_user,
+}

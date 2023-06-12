@@ -1,5 +1,5 @@
 /**
- * This is an example of a basic node.js script that performs
+ * Uses a basic node.js script that performs
  * the Authorization Code oAuth2 flow to authenticate against
  * the Spotify Accounts.
  *
@@ -8,7 +8,7 @@
  */
 
 const { generateRandomString } = require('../src/utils/strings');
-const data = require('../data');
+const { spotify_data, user_data } = require('../data');
 
 const express = require('express');
 const router = express.Router();
@@ -30,12 +30,17 @@ router.get('/', async (req, res) => {
     if (!access_token) res.redirect('/login');
     else { 
         try {
-            const body = await data.get_top_tracks(access_token, 'long_term', 50, 0);
-            let track_names = body.items.map(x => x.name);
-            res.render('partials/top-list', { title: 'Top Tracks', names: track_names });
+            const user_id = await spotify_data.get_curr_user_id(access_token);
+            // console.log(user_id);
+            // const tracks = await spotify_data.get_top_tracks(access_token, 'short_term', 50, 0);
+            // let track_names = tracks.items.map(x => x.name);
+            // res.render('partials/top-list', { title: 'Top Tracks', names: track_names });
+            //user_data.create_user(user_id);
+            const user = await user_data.get_user(user_id);
+            res.json(user);
         } catch (e) {
             console.log(e)
-            res.redirect('/error#' + querystring.stringify({ error: e }));
+            //res.redirect('/error#' + querystring.stringify({ error: e }));
         }
     }
 });
@@ -65,7 +70,7 @@ router.get('/callback', async (req, res) => {
             }));
     } else {
         try {
-            const body = await data.get_auth(code, redirect_uri, auth_token);
+            const body = await spotify_data.get_auth(code, redirect_uri, auth_token);
             req.session.access_token = body.access_token;
             req.session.refresh_token = body.refresh_token;
             res.redirect('/');
