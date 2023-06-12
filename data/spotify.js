@@ -22,6 +22,23 @@ async function get_auth(code, redirect_uri, auth_token) {
     return response.data;
 }
 
+async function get_auth_from_refresh(refresh_token, auth_token) {
+    const url = 'https://accounts.spotify.com/api/token';
+    const body = querystring.stringify({
+        grant_type: 'refresh_token',
+        refresh_token: refresh_token
+    });
+
+    const response = await axios.post(url, body, {
+        headers: {
+            Authorization: `Basic ${auth_token}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+    });
+
+    return response.data;
+}
+
 async function get_curr_user_profile(access_token) {
     const url = 'https://api.spotify.com/v1/me';
     const response = await axios.get(url, {
@@ -90,6 +107,7 @@ async function get_top_tracks(access_token, time_range, limit, offset) {
 
 module.exports = {
     get_auth,
+    get_auth_from_refresh,
     get_curr_user_profile,
     get_curr_user_id,
     get_all_top,

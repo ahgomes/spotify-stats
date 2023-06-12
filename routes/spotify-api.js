@@ -40,8 +40,7 @@ router.get('/', async (req, res) => {
             const user = await user_data.get_user(user_id);
             res.json(user);
         } catch (e) {
-            console.log(e)
-            //res.redirect('/error#' + querystring.stringify({ error: e }));
+            res.send({ error: e });
         }
     }
 });
@@ -65,10 +64,7 @@ router.get('/callback', async (req, res) => {
     let state = req.query.state || null;
 
     if (state === null) {
-        res.redirect('/#' +
-            querystring.stringify({
-                error: 'state_mismatch'
-            }));
+        res.send({ error: e });
     } else {
         try {
             const body = await spotify_data.get_auth(code, redirect_uri, auth_token);
@@ -76,33 +72,22 @@ router.get('/callback', async (req, res) => {
             req.session.refresh_token = body.refresh_token;
             res.redirect('/');
         } catch (e) {
-            console.log(e)
-            res.redirect('/error#' + querystring.stringify({ error: e }));
+            res.send({ error: e });
         }
     }
 });
 
 router.get('/refresh_token', async (req, res) => {
     let refresh_token = req.query.refresh_token;
-    let authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
-        headers: { 'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64')) },
-        form: {
-            grant_type: 'refresh_token',
-            refresh_token: refresh_token
-        },
-        json: true
-    };
-
-    // request.post(authOptions, function (error, response, body) {
-    //     if (!error && response.statusCode === 200) {
-    //         let access_token = body.access_token;
-    //         res.send({
-    //             'access_token': access_token
-    //         });
-    //     }
-    // });
-    res.send('incomplete');
+    try {
+        const body = await spotify_data.get_auth_from_refresh(refresh_token, auth_token);
+        let access_token = body.access_token;
+        res.send({
+            'access_token': access_token
+        });
+    } catch (e) {
+        res.send({ error: e });
+    }
 });
 
 module.exports = router;
