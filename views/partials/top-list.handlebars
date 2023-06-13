@@ -1,6 +1,16 @@
+<h1>{{username}}</h1>
 <section>
-    <h2>{{title}}</h2>
+    <h2>top artists</h2>
     <ol>
-        {{#each names}} <li>{{this}}</li> {{/each}}
+        {{#each artists}} <li>{{this}}</li> {{/each}}
     </ol>
+</section>
+<section>
+    <h2>top tracks</h2>
+    <ol>
+        {{#each tracks}} <li>{{this}}</li> {{/each}}
+    </ol>
+</section>
+<section class="chart">
+    {{{chart}}}
 </section>

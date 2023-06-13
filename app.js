@@ -17,8 +17,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
     name: 'spotify_auth',
     secret: generateRandomString(36),
-    resave: false,
-    saveUninitialized: true
+    resave: true,
+    saveUninitialized: true,
+    cookie: { maxAge: 3600000 },
 }));
 
 app.engine('handlebars', exphbs.engine());

@@ -1,11 +1,11 @@
 const mongoCollections = require('../config/mongoCollections');
 const users = mongoCollections.users;
 
-const validate = require('./validate');
+const { check_string_nonempty } = require('../src/utils/strings');
 const spotify = require('./spotify');
 
 async function create_user(id, access_token) {
-    const username = validate.check_string_nonempty(id, 'username');
+    const username = check_string_nonempty(id, 'username');
 
     const user_collection = await users();
     const existing_user = await user_collection.findOne({
@@ -27,7 +27,7 @@ async function create_user(id, access_token) {
 }
 
 async function get_user(id) {
-    const username = validate.check_string_nonempty(id, 'username');
+    const username = check_string_nonempty(id, 'username');
 
     const user_collection = await users();
     const user = await user_collection.findOne({
@@ -40,7 +40,7 @@ async function get_user(id) {
 }
 
 async function update_top(id, access_token) {
-    const username = validate.check_string_nonempty(id, 'username');
+    const username = check_string_nonempty(id, 'username');
 
     const user_collection = await users();
     const user = await user_collection.findOne({

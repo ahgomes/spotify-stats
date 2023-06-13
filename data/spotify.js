@@ -106,10 +106,12 @@ async function get_top_tracks(access_token, time_range, limit, offset) {
 }
 
 module.exports = {
+    get_from_items,
     get_auth,
     get_auth_from_refresh,
     get_curr_user_profile,
     get_curr_user_id,
     get_all_top,
+    get_top,
     get_top_tracks,
 };

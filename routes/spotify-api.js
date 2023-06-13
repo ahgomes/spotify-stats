@@ -8,6 +8,7 @@
  */
 
 const { generateRandomString } = require('../src/utils/strings');
+const charts = require('../src/utils/charts');
 const { spotify_data, user_data } = require('../data');
 
 const express = require('express');
@@ -31,14 +32,17 @@ router.get('/', async (req, res) => {
     else { 
         try {
             const user_id = await spotify_data.get_curr_user_id(access_token);
-            // console.log(user_id);
-            // const tracks = await spotify_data.get_top_tracks(access_token, 'short_term', 50, 0);
-            // let track_names = tracks.items.map(x => x.name);
-            // res.render('partials/top-list', { title: 'Top Tracks', names: track_names });
-            //user_data.create_user(user_id);
-            const top_update = await user_data.update_top(user_id, access_token);
-            const user = await user_data.get_user(user_id);
-            res.json(user);
+            //let _ = await user_data.update_top(user_id, access_token);
+            //const user = await user_data.get_user(user_id);
+            const artists = await spotify_data.get_top(access_token, 'artists', 'short_term', 10, 0);
+            const tracks = await spotify_data.get_top(access_token, 'tracks', 'short_term', 10, 0);
+            res.render('partials/top-list', { 
+                title: 'Spotify Stats',
+                username: user_id,
+                artists: spotify_data.get_from_items(artists.items, 'name'),
+                tracks: spotify_data.get_from_items(tracks.items, 'name'),
+                chart: charts.test(),
+            });
         } catch (e) {
             res.send({ error: e });
         }
