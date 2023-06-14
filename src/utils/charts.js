@@ -1,5 +1,5 @@
 /**
- * Reworking of asciichart.js 
+ * Adabpted from asciichart.js 
  * https://github.com/kroitor/asciichart/
  */
 
@@ -34,6 +34,13 @@ const gen_colors = (n) => {
     let rgb = Array(3).fill().map(_ => form());
     return [`rgb(${rgb.join()})`].concat(gen_colors(n - 1));
 };
+
+function legend(keys, colors) {
+    return keys.map((k, i) => {
+        let curr_clr = colors[i % colors.length];
+        return TOKENS.nbsp + color(TOKENS.hor, curr_clr) + TOKENS.nbsp + k;
+    }).join('\n');
+}
 
 function plot(data, layout = {}) {
     if (typeof (data[0]) == 'number') {
@@ -121,6 +128,11 @@ function plot(data, layout = {}) {
         plane.unshift(title_card);
     }
 
+    if (layout.legend != undefined) {
+        plane.push([]);
+        plane.push([legend(layout.legend, colors)]);
+    }
+
     return plane.map(r => r.join('')).join('\n');
 }
 
@@ -134,7 +146,9 @@ async function test(id) {
 
     let max = 5, min = 1;
 
-    let data = Object.values(objects.entries_to_keys(a.past_tops.artists.short_term, max));
+    let artists = objects.entries_to_keys(a.past_tops.artists.short_term, max);
+    let data = Object.values(artists).slice(min - 1, max - min + 1)
+    let keys = Object.keys(artists).slice(min - 1, max - min + 1)
     //data = (Array(max).fill([]).map((_, i) => Array(5).fill(i)));
     data = data.map(x => x.map(y => max - y));
 
@@ -145,7 +159,8 @@ async function test(id) {
         max: max,
         colors: gen_colors(max, -2),
         height: (max - 1) * 2, 
-        yticks: max, 
+        yticks: max,
+        legend: keys,
     });
 }
 

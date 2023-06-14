@@ -23,7 +23,7 @@ body {
 }
 
 section.chart {
-    padding: 5px;
+    margin: 10px 0;
     white-space: pre-line;
 }
 
