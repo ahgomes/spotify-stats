@@ -69,28 +69,12 @@ async function get_all_top(access_token) {
         }
     }
 
-    top.date = new Date();
+    top.date_updated = new Date();
     return top;
 }
 
 async function get_top(access_token, type, time_range, limit, offset) {
     const url = `https://api.spotify.com/v1/me/top/${type}`;
-    const response = await axios.get(url, {
-        params: {
-            time_range: time_range,
-            limit: limit,
-            offset: offset
-        },
-        headers: {
-            Authorization: `Bearer ${access_token}`
-        }
-    });
-
-    return response.data;
-}
-
-async function get_top_tracks(access_token, time_range, limit, offset) {
-    const url = 'https://api.spotify.com/v1/me/top/tracks';
     const response = await axios.get(url, {
         params: {
             time_range: time_range,
@@ -113,5 +97,4 @@ module.exports = {
     get_curr_user_id,
     get_all_top,
     get_top,
-    get_top_tracks,
 };

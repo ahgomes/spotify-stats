@@ -17,6 +17,24 @@ function entries_to_keys(obj, fill = -1) {
     return result;
 }
 
+// for insterting current top to past tops object in user data
+function insert(from, to) {
+    let date_str = from.date_updated.toISOString();
+    let entries = Object.entries(from).slice(0, 2)
+    entries.forEach(e => {
+        let sub_e = Object.entries(e[1]);
+        sub_e.forEach(se => {
+            if (to[e[0]] == undefined) to[e[0]] = {};
+            if (to[e[0]][se[0]] == undefined) to[e[0]][se[0]] = {};
+            to[e[0]][se[0]][date_str] = se[1];
+        });
+
+    });
+    to.date_updated = from.date_updated;
+    return to;
+}
+
 module.exports = {
     entries_to_keys,
+    insert,
 };

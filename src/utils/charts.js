@@ -1,10 +1,10 @@
 /**
  * Reworking of asciichart.js 
  * https://github.com/kroitor/asciichart/
- * 
  */
 
-const arrays = require('./arrays');
+const objects = require('./objects');
+const user_data = require('../../data/user');
 
 const TOKENS = {
     hor: '─',
@@ -20,17 +20,19 @@ const color = (tkn, clr) => {
     return `<span style="color:${clr}">${tkn}</span>`;
 };
 
-const gen_colors = (n) => {
+/**  
+ * Reworking of color generation from
+ * https://krazydad.com/tutorials/makecolors.php 
+ */
+const gen_colors = (n) => { 
     if (n == 0) return [];
     let f = 2.4, p = -2, w = 127, c = 128;
     let form = () => { 
         p += 2;
         return Math.abs(Math.sin(f * n + p) * c + w)
     }
-    let r = form(), 
-        g = form(), 
-        b = form();
-    return [`rgb(${r},${g},${b})`].concat(gen_colors(n - 1));
+    let rgb = Array(3).fill().map(_ => form());
+    return [`rgb(${rgb.join()})`].concat(gen_colors(n - 1));
 };
 
 function plot(data, layout = {}) {
@@ -122,25 +124,8 @@ function plot(data, layout = {}) {
     return plane.map(r => r.join('')).join('\n');
 }
 
-function test() {
-    let a = {
-        'a0': 'abcdefghij'.split(''),
-        'a1': 'abcdefghij'.split(''),
-        'ca2': 'abdcefghij'.split(''),
-        'b4': 'aebdfgchij'.split(''),
-        'a3': 'aebfgchidj'.split(''),
-        'a32': 'aebgfchidj'.split(''),
-        'ad2': 'aebgfhcijd'.split(''),
-        'ca3': 'abdcefghij'.split(''),
-        'ca3': 'abdcefghij'.split(''),
-        'ca3': 'abdcefghij'.split(''),
-        'cb4': 'abdcefghij'.split(''),
-        'ca1': 'abdcefkhij'.split(''),
-        'ca4': 'abdcefhikg'.split(''),
-        'da4': 'abcdefhikg'.split(''),
-        'da5': 'abcdefhikg'.split(''),
-        'da6': 'abcdefhikg'.split(''),
-    }
+async function test(id) {
+    let a = await user_data.get_user(id);
 
     let format = (n, max, min) => {
         return (n == null) ? TOKENS.nbsp.repeat(3)
@@ -149,8 +134,8 @@ function test() {
 
     let max = 5, min = 1;
 
-    let data = Object.values(arrays.entries_to_keys(a, 10));
-    //data = (Array(max).fill([]).map((x, i) => Array(5).fill(i)));
+    let data = Object.values(objects.entries_to_keys(a.past_tops.artists.short_term, max));
+    //data = (Array(max).fill([]).map((_, i) => Array(5).fill(i)));
     data = data.map(x => x.map(y => max - y));
 
     return plot(data, {

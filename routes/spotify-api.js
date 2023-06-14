@@ -33,7 +33,6 @@ router.get('/', async (req, res) => {
         try {
             const user_id = await spotify_data.get_curr_user_id(access_token);
             //let _ = await user_data.update_top(user_id, access_token);
-            //const user = await user_data.get_user(user_id);
             const artists = await spotify_data.get_top(access_token, 'artists', 'short_term', 10, 0);
             const tracks = await spotify_data.get_top(access_token, 'tracks', 'short_term', 10, 0);
             res.render('partials/top-list', { 
@@ -41,7 +40,7 @@ router.get('/', async (req, res) => {
                 username: user_id,
                 artists: spotify_data.get_from_items(artists.items, 'name'),
                 tracks: spotify_data.get_from_items(tracks.items, 'name'),
-                chart: charts.test(),
+                chart: await charts.test(user_id),
             });
         } catch (e) {
             res.send({ error: e });
