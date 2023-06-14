@@ -2,6 +2,8 @@ const axios = require('axios');
 const { log } = require('console');
 const querystring = require('querystring');
 
+const MAX_QUERY_LENGTH = 50;
+
 const get_from_items = (items, selection) => items.map(i => i[selection]);
 
 async function get_auth(code, redirect_uri, auth_token) {
@@ -89,6 +91,43 @@ async function get_top(access_token, type, time_range, limit, offset) {
     return response.data;
 }
 
+async function get_one(access_token, type, id) {
+    const url = `https://api.spotify.com/v1/${type}/${id}`;
+    const response = await axios.get(url, {
+        headers: {
+            Authorization: `Bearer ${access_token}`
+        }
+    });
+
+    return response.data;
+}
+
+async function get_group(access_token, type, ids) {
+    let group = [];
+
+    const get_chunk = async (ids_chunk) => {
+        const url = `https://api.spotify.com/v1/${type}`;
+        const response = await axios.get(url, {
+            params: {
+                ids: ids_chunk.join()
+            },
+            headers: {
+                Authorization: `Bearer ${access_token}`
+            }
+        });
+
+        return response.data[type];
+    }
+
+    for (let i = 0; i < ids.length; i += MAX_QUERY_LENGTH) {
+        const chunk = ids.slice(i, i + MAX_QUERY_LENGTH);
+        const result = await get_chunk(chunk);
+        group = group.concat(result);
+    }
+
+    return group;
+}
+
 module.exports = {
     get_from_items,
     get_auth,
@@ -97,4 +136,6 @@ module.exports = {
     get_curr_user_id,
     get_all_top,
     get_top,
+    get_one,
+    get_group,
 };

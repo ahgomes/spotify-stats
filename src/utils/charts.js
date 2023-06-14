@@ -4,7 +4,7 @@
  */
 
 const objects = require('./objects');
-const user_data = require('../../data/user');
+const { spotify_data, user_data } = require('../../data/');
 
 const TOKENS = {
     hor: '─',
@@ -136,7 +136,7 @@ function plot(data, layout = {}) {
     return plane.map(r => r.join('')).join('\n');
 }
 
-async function test(id) {
+async function test(id, access_token) {
     let a = await user_data.get_user(id);
 
     let format = (n, max, min) => {
@@ -146,9 +146,11 @@ async function test(id) {
 
     let max = 5, min = 1;
 
-    let artists = objects.entries_to_keys(a.past_tops.artists.short_term, max);
-    let data = Object.values(artists).slice(min - 1, max - min + 1)
-    let keys = Object.keys(artists).slice(min - 1, max - min + 1)
+    let artists_pos = objects.entries_to_keys(a.past_tops.artists.short_term, max);
+    let data = Object.values(artists_pos).slice(min - 1, max - min + 1);
+    let ids = Object.keys(artists_pos);
+    let keys = await spotify_data.get_group(access_token, 'artists', ids);
+    keys = spotify_data.get_from_items(keys, 'name').slice(min - 1, max - min + 1);
     //data = (Array(max).fill([]).map((_, i) => Array(5).fill(i)));
     data = data.map(x => x.map(y => max - y));
 

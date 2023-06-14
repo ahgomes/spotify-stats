@@ -42,7 +42,7 @@ router.get('/', async (req, res) => {
                 username: user_id,
                 artists: spotify_data.get_from_items(artists.items, 'name'),
                 tracks: spotify_data.get_from_items(tracks.items, 'name'),
-                chart: await charts.test(user_id),
+                chart: await charts.test(user_id, access_token),
             });
         } catch (e) {
             res.send({ error: e });
