@@ -22,7 +22,19 @@ app.use(session({
     cookie: { maxAge: 3600000 },
 }));
 
-app.engine('handlebars', exphbs.engine());
+const hbs = exphbs.create({
+    helpers: {
+        // from
+        // https://stackoverflow.com/a/16928455
+        select(selected, options) {
+            return options.fn(this).replace(
+                new RegExp(` value="${selected}"`),
+                '$& selected="selected"');
+        }
+    },
+});
+
+app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 
 configRoutes(app);

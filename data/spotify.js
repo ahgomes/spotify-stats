@@ -129,6 +129,7 @@ async function get_group(access_token, type, ids) {
 }
 
 module.exports = {
+    MAX_QUERY_LENGTH, 
     get_from_items,
     get_auth,
     get_auth_from_refresh,

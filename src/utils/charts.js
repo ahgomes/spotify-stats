@@ -136,7 +136,7 @@ function plot(data, layout = {}) {
     return plane.map(r => r.join('')).join('\n');
 }
 
-async function test(id, access_token) {
+async function test(id, access_token, max = 10, type = 'artists') {
     let a = await user_data.get_user(id);
 
     let format = (n, max, min) => {
@@ -144,26 +144,26 @@ async function test(id, access_token) {
             : (TOKENS.nbsp.repeat(3) + (max - Math.trunc(n) + min)).slice(-3);
     };
 
-    let min = 1, max = 10;
-    let type = 'tracks'
-    let pos = objects.entries_to_keys(a['past_tops'][type]['short_term'], -1);
+    let min = 1/*, max = 10*/;
+    //let type = 'tracks';
+    let pos = objects.entries_to_keys(a['past_tops'][type]['short_term'], max);
     //let max = Object.values(pos).length
-    pos = Object.fromEntries(Object.entries(pos).map(e => [e[0], e[1].map(x => (x < 0) ? max : x)]));
+    //pos = Object.fromEntries(Object.entries(pos).map(e => [e[0], e[1].map(x => (x < 0) ? max : x)]));
     pos = objects.within_index(pos, min - 1, max);
     let data = Object.values(pos)
     let ids = Object.keys(pos);
     let keys = await spotify_data.get_group(access_token, type, ids);
     keys = spotify_data.get_from_items(keys, 'name')
     //data = (Array(max).fill([]).map((_, i) => Array(5).fill(i)));    
-    data = data.map(x => x.map(y => max - y));
-
+    data = data.map(x => x.map(y => max - y)); // FIXME? <--
+    console.log(data)
     return plot(data, {
-        title: `top ${max} ${type}`, 
+        //title: `top ${max} ${type}`, 
         format: (n) => format(n, min, max),
         min: min,
         max: max,
-        colors: gen_colors(max, -2),
-        height: (max - 1) * 2, 
+        colors: gen_colors(max),
+        height: (max <= 10) ? (max - 1) * 2 : max - 1, 
         yticks: max,
         legend: keys,
     });

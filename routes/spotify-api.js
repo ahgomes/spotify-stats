@@ -9,6 +9,7 @@
 
 const { generateRandomString } = require('../src/utils/strings');
 const charts = require('../src/utils/charts');
+const objects = require('../src/utils/objects');
 const { spotify_data, user_data } = require('../data');
 
 const express = require('express');
@@ -31,17 +32,25 @@ router.get('/', async (req, res) => {
     if (!access_token) res.redirect('/login');
     else { 
         try {
-            const user_id = await spotify_data.get_curr_user_id(access_token);
-            const user = await user_data.get_user(user_id);
+            if (!req.session.user)
+                req.session.user = await spotify_data.get_curr_user_id(access_token);
+            let user_id = req.session.user;
             //await user_data.update_top(user_id, access_token);
             const artists = await spotify_data.get_top(access_token, 'artists', 'short_term', 10, 0);
             const tracks = await spotify_data.get_top(access_token, 'tracks', 'short_term', 10, 0);
+
+            let { count, type } = req.query;
+            let chart_max = (count != undefined && count != NaN) ? Number(count) : undefined;
+            count = count || 10;
+            type = type || 'artists';
+            // TODO: validate query string
             res.render('index', { 
                 title: 'Spotify Stats',
                 username: user_id,
                 artists: spotify_data.get_from_items(artists.items, 'name'),
                 tracks: spotify_data.get_from_items(tracks.items, 'name'),
-                chart: await charts.test(user_id, access_token),
+                form: { max: spotify_data.MAX_QUERY_LENGTH, count: count, type: type},
+                chart: await charts.test(user_id, access_token, chart_max, type),
             });
         } catch (e) {
             res.send({ error: e });
@@ -68,7 +77,7 @@ router.get('/callback', async (req, res) => {
     let state = req.query.state || null;
 
     if (state === null) {
-        res.send({ error: e });
+        res.send({ error: 'Missing state.' });
     } else {
         try {
             const body = await spotify_data.get_auth(code, redirect_uri, auth_token);
@@ -79,6 +88,12 @@ router.get('/callback', async (req, res) => {
             res.send({ error: e });
         }
     }
+});
+
+router.post('/refresh_chart', async (req, res) => {
+    let { count, type } = req.body;
+    // TODO: validate input
+    res.redirect(`/?count=${count}&type=${type}`);
 });
 
 router.get('/refresh_token', async (req, res) => {

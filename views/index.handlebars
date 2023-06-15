@@ -1,6 +1,7 @@
 <h1>{{username}}</h1>
 {{> top-list title='top artists' list=this.artists}}
 {{> top-list title='top tracks' list=this.tracks}}
+{{> chart-form max=this.form.max count=this.form.count type=this.form.type}}
 <section class="chart">
     {{{chart}}}
 </section>

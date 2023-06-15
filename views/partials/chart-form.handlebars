@@ -1,0 +1,9 @@
+<form id="chart-form" action="/refresh_chart/" method="POST">
+    top <input type="number" name="count" id="count" value="{{count}}" placeholder="count" min="1" max="{{max}}"/>
+    <select name="type" id="type" onchange='this.form.submit()'>
+        {{#select type}}
+        <option value="artists">artists</option>
+        <option value="tracks">tracks</option>
+        {{/select}}
+    </select>
+</form>
