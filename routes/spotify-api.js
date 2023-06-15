@@ -39,18 +39,19 @@ router.get('/', async (req, res) => {
             const artists = await spotify_data.get_top(access_token, 'artists', 'short_term', 10, 0);
             const tracks = await spotify_data.get_top(access_token, 'tracks', 'short_term', 10, 0);
 
-            let { count, type } = req.query;
+            let { count, type, time_range } = req.query;
             let chart_max = (count != undefined && count != NaN) ? Number(count) : undefined;
             count = count || 10;
             type = type || 'artists';
+            time_range = time_range || 'short_term';
             // TODO: validate query string
             res.render('index', { 
                 title: 'Spotify Stats',
                 username: user_id,
                 artists: spotify_data.get_from_items(artists.items, 'name'),
                 tracks: spotify_data.get_from_items(tracks.items, 'name'),
-                form: { max: spotify_data.MAX_QUERY_LENGTH, count: count, type: type},
-                chart: await charts.test(user_id, access_token, chart_max, type),
+                form: { max: spotify_data.MAX_QUERY_LENGTH, count, type, time_range},
+                chart: await charts.test(user_id, access_token, chart_max, type, time_range),
             });
         } catch (e) {
             res.send({ error: e });
@@ -91,9 +92,9 @@ router.get('/callback', async (req, res) => {
 });
 
 router.post('/refresh_chart', async (req, res) => {
-    let { count, type } = req.body;
+    let { count, type, time_range } = req.body;
     // TODO: validate input
-    res.redirect(`/?count=${count}&type=${type}`);
+    res.redirect(`/?count=${count}&type=${type}&time_range=${time_range}`);
 });
 
 router.get('/refresh_token', async (req, res) => {

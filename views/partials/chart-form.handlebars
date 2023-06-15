@@ -6,4 +6,11 @@
         <option value="tracks">tracks</option>
         {{/select}}
     </select>
+    <select name="time_range" id="time-range" onchange='this.form.submit()'>
+        {{#select time-range}}
+        <option value="short_term">last month</option>
+        <option value="medium_term">last 6 months</option>
+        <option value="long_term">all time</option>
+        {{/select}}
+    </select>
 </form>

@@ -136,7 +136,7 @@ function plot(data, layout = {}) {
     return plane.map(r => r.join('')).join('\n');
 }
 
-async function test(id, access_token, max = 10, type = 'artists') {
+async function test(id, access_token, max = 10, type = 'artists', time_range = 'short_term') {
     let a = await user_data.get_user(id);
 
     let format = (n, max, min) => {
@@ -146,7 +146,7 @@ async function test(id, access_token, max = 10, type = 'artists') {
 
     let min = 1/*, max = 10*/;
     //let type = 'tracks';
-    let pos = objects.entries_to_keys(a['past_tops'][type]['short_term'], max);
+    let pos = objects.entries_to_keys(a['past_tops'][type][time_range], max);
     //let max = Object.values(pos).length
     //pos = Object.fromEntries(Object.entries(pos).map(e => [e[0], e[1].map(x => (x < 0) ? max : x)]));
     pos = objects.within_index(pos, min - 1, max);
@@ -155,7 +155,7 @@ async function test(id, access_token, max = 10, type = 'artists') {
     let keys = await spotify_data.get_group(access_token, type, ids);
     keys = spotify_data.get_from_items(keys, 'name')
     //data = (Array(max).fill([]).map((_, i) => Array(5).fill(i)));    
-    data = data.map(x => x.map(y => max - y)); // FIXME? <--
+    data = data.map(x => x.map(y => max - y)); // FIXME? <-- maybe add within to entries_to_keys??
     console.log(data)
     return plot(data, {
         //title: `top ${max} ${type}`, 
