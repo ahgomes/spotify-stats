@@ -17,6 +17,22 @@ function entries_to_keys(obj, fill = -1) {
     return result;
 }
 
+// gets entries within a certain rank/index
+function within_index(obj, start, end) {
+    const btwn = (arr) => {
+        return arr.some(x => x >= start && x < end);
+    };
+    return filter(obj, btwn);
+}
+
+// from 
+// https://stackoverflow.com/questions/5072136/javascript-filter-for-objects
+function filter(obj, predicate) {
+    return Object.assign(...Object.keys(obj)
+            .filter(key => predicate(obj[key]))
+            .map(key => ({ [key]: obj[key] })));
+}
+
 // for insterting current top to past tops object in user data
 function insert(from, to) {
     let date_str = from.date_updated.toISOString();
@@ -32,9 +48,11 @@ function insert(from, to) {
     });
     to.date_updated = from.date_updated;
     return to;
-}
+} 
 
 module.exports = {
     entries_to_keys,
+    within_index,
+    filter, 
     insert,
 };

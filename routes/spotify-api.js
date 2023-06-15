@@ -33,8 +33,7 @@ router.get('/', async (req, res) => {
         try {
             const user_id = await spotify_data.get_curr_user_id(access_token);
             const user = await user_data.get_user(user_id);
-            //let f = async () => await user_data.update_top(user_id, access_token);
-            let f = async () => console.log(3);
+            //await user_data.update_top(user_id, access_token);
             const artists = await spotify_data.get_top(access_token, 'artists', 'short_term', 10, 0);
             const tracks = await spotify_data.get_top(access_token, 'tracks', 'short_term', 10, 0);
             res.render('index', { 

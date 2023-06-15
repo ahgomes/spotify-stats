@@ -144,18 +144,21 @@ async function test(id, access_token) {
             : (TOKENS.nbsp.repeat(3) + (max - Math.trunc(n) + min)).slice(-3);
     };
 
-    let max = 5, min = 1;
-
-    let artists_pos = objects.entries_to_keys(a.past_tops.artists.short_term, max);
-    let data = Object.values(artists_pos).slice(min - 1, max - min + 1);
-    let ids = Object.keys(artists_pos);
-    let keys = await spotify_data.get_group(access_token, 'artists', ids);
-    keys = spotify_data.get_from_items(keys, 'name').slice(min - 1, max - min + 1);
-    //data = (Array(max).fill([]).map((_, i) => Array(5).fill(i)));
+    let min = 1, max = 10;
+    let type = 'tracks'
+    let pos = objects.entries_to_keys(a['past_tops'][type]['short_term'], -1);
+    //let max = Object.values(pos).length
+    pos = Object.fromEntries(Object.entries(pos).map(e => [e[0], e[1].map(x => (x < 0) ? max : x)]));
+    pos = objects.within_index(pos, min - 1, max);
+    let data = Object.values(pos)
+    let ids = Object.keys(pos);
+    let keys = await spotify_data.get_group(access_token, type, ids);
+    keys = spotify_data.get_from_items(keys, 'name')
+    //data = (Array(max).fill([]).map((_, i) => Array(5).fill(i)));    
     data = data.map(x => x.map(y => max - y));
 
     return plot(data, {
-        title: `top ${max} artists`, 
+        title: `top ${max} ${type}`, 
         format: (n) => format(n, min, max),
         min: min,
         max: max,
