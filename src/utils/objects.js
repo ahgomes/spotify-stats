@@ -1,9 +1,11 @@
-
-function entries_to_keys(obj, fill = -1) {
-    let entries = Object.entries(obj).sort().map(e => e[1]);
+                                                
+function entries_to_keys(obj, fill = -1, cap) { 
+    let { metadata, ...rest } = obj;
+    let entries = Object.entries(rest).sort().map(e => e[1]);
+    cap = (cap > 0) ? Math.min(entries[0].length, cap) : entries[0].length; 
     let result = {};
     for (let i = 0; i < entries.length; i++) {
-        for (let j = 0; j < entries[0].length; j++) { // FIXME? min(length, a param val)
+        for (let j = 0; j < cap; j++) {
             let id = entries[i][j];
             if (result[id] != null)
                 result[id][i] = j;
@@ -17,32 +19,24 @@ function entries_to_keys(obj, fill = -1) {
     return result;
 }
 
-// gets entries within a certain rank/index
-function within_index(obj, start, end) {
-    const btwn = (arr) => {
-        return arr.some(x => x >= start && x < end);
-    };
-    return filter(obj, btwn);
-}
-
-// from 
-// https://stackoverflow.com/questions/5072136/javascript-filter-for-objects
-function filter(obj, predicate) {
-    return Object.assign(...Object.keys(obj)
-            .filter(key => predicate(obj[key]))
-            .map(key => ({ [key]: obj[key] })));
+function unique_values(obj) { // metadata life cycle 
+    let { metadata, ...rest } = obj; //twink death
+    return new Set(Object.entries(rest).map(e => e[1]).flat()).size; //twink birth
 }
 
 // for insterting current top to past tops object in user data
-function insert(from, to) {
+function insert(from, to, opt = {metadata: {}, update: false}) {
     let date_str = from.date_updated.toISOString();
     let entries = Object.entries(from).slice(0, 2)
     entries.forEach(e => {
         let sub_e = Object.entries(e[1]);
         sub_e.forEach(se => {
             if (to[e[0]] == undefined) to[e[0]] = {};
-            if (to[e[0]][se[0]] == undefined) to[e[0]][se[0]] = {};
+            if (to[e[0]][se[0]] == undefined) to[e[0]][se[0]] = { metadata: opt.metadata };
             to[e[0]][se[0]][date_str] = se[1];
+            if (opt.update) {
+                to[e[0]][se[0]].metadata.max_index = unique_values(to[e[0]][se[0]]);
+            }
         });
 
     });
@@ -51,8 +45,7 @@ function insert(from, to) {
 } 
 
 module.exports = {
-    entries_to_keys,
-    within_index,
-    filter, 
+    entries_to_keys, 
+    unique_values,
     insert,
 };

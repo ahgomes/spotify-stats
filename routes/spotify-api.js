@@ -34,24 +34,34 @@ router.get('/', async (req, res) => {
         try {
             if (!req.session.user)
                 req.session.user = await spotify_data.get_curr_user_id(access_token);
-            let user_id = req.session.user;
-            //await user_data.update_top(user_id, access_token);
-            const artists = await spotify_data.get_top(access_token, 'artists', 'short_term', 10, 0);
-            const tracks = await spotify_data.get_top(access_token, 'tracks', 'short_term', 10, 0);
+            let username = req.session.user;
+            let user = await user_data.get_user(username);
+            
+            let artists = await spotify_data.get_group(access_token, 
+                'artists', 
+                user.top.artists.short_term.slice(0, 10));
+            artists = spotify_data.get_from_items(artists, 'name');
+            let tracks = await spotify_data.get_group(access_token, 
+                'tracks', 
+                user.top.tracks.short_term.slice(0, 10));
+            tracks = spotify_data.get_from_items(tracks, 'name');
+
 
             let { count, type, time_range } = req.query;
             let chart_max = (count != undefined && count != NaN) ? Number(count) : undefined;
             count = count || 10;
             type = type || 'artists';
             time_range = time_range || 'short_term';
+            
+            let form_max = user['past_tops'][type][time_range].metadata.max_index;
             // TODO: validate query string
             res.render('index', { 
                 title: 'Spotify Stats',
-                username: user_id,
-                artists: spotify_data.get_from_items(artists.items, 'name'),
-                tracks: spotify_data.get_from_items(tracks.items, 'name'),
-                form: { max: spotify_data.MAX_QUERY_LENGTH, count, type, time_range},
-                chart: await charts.test(user_id, access_token, chart_max, type, time_range),
+                username,
+                artists,
+                tracks,
+                form: { max: form_max, count, type, time_range},
+                chart: await charts.test(username, access_token, chart_max, type, time_range),
             });
         } catch (e) {
             res.send({ error: e });
@@ -95,6 +105,14 @@ router.post('/refresh_chart', async (req, res) => {
     let { count, type, time_range } = req.body;
     // TODO: validate input
     res.redirect(`/?count=${count}&type=${type}&time_range=${time_range}`);
+});
+
+router.get('/update_top', async (req, res) => {
+    if (!req.session.access_token || !req.session.user) res.redirect('/login');
+    else {
+        await user_data.update_top(req.session.user, req.session.access_token);
+        res.redirect('/');
+    }
 });
 
 router.get('/refresh_token', async (req, res) => {

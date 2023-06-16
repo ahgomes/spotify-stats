@@ -10,7 +10,8 @@ const TOKENS = {
     hor: '─',
     vert: '│',
     point: '•',
-    square: ['┌', '┬', '┐', '├', '┼', '┤', '└', '┴', '┘'],
+    //square: ['┌', '┬', '┐', '├', '┼', '┤', '└', '┴', '┘'],
+    square: ['1', '0', '0', '0', '0', '$', '0', '0', '.'], //ur spending money to see fake money grow on ur computer
     curved: ['╭', '┬', '╮', '├', '┼', '┤', '╰', '┴', '╯'],
     nbsp: '\xa0',
 };
@@ -144,19 +145,13 @@ async function test(id, access_token, max = 10, type = 'artists', time_range = '
             : (TOKENS.nbsp.repeat(3) + (max - Math.trunc(n) + min)).slice(-3);
     };
 
-    let min = 1/*, max = 10*/;
-    //let type = 'tracks';
-    let pos = objects.entries_to_keys(a['past_tops'][type][time_range], max);
-    //let max = Object.values(pos).length
-    //pos = Object.fromEntries(Object.entries(pos).map(e => [e[0], e[1].map(x => (x < 0) ? max : x)]));
-    pos = objects.within_index(pos, min - 1, max);
+    let min = 1;
+    let pos = objects.entries_to_keys(a['past_tops'][type][time_range], max, max);
     let data = Object.values(pos)
     let ids = Object.keys(pos);
     let keys = await spotify_data.get_group(access_token, type, ids);
-    keys = spotify_data.get_from_items(keys, 'name')
-    //data = (Array(max).fill([]).map((_, i) => Array(5).fill(i)));    
-    data = data.map(x => x.map(y => max - y)); // FIXME? <-- maybe add within to entries_to_keys??
-    console.log(data)
+    keys = spotify_data.get_from_items(keys, 'name')  
+    data = data.map(x => x.map(y => max - y));
     return plot(data, {
         //title: `top ${max} ${type}`, 
         format: (n) => format(n, min, max),

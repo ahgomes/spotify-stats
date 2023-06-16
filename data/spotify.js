@@ -66,7 +66,7 @@ async function get_all_top(access_token) {
     for (const k of types) {
         top[k] = {};
         for (const r of time_ranges) {
-            let top_data = await get_top(access_token, k, r, 50, 0);
+            let top_data = await get_top(access_token, k, r, MAX_QUERY_LENGTH, 0);
             top[k][r] = get_from_items(top_data.items, 'id');
         }
     }
