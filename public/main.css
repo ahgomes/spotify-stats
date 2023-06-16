@@ -14,12 +14,104 @@
 
 * {
     font-size: 14px;
+    font-family: monospace;
 }
 
 body {
-    font-family: 'Courier New', Courier, monospace;
-    background: #000;
+    background: #111;
     color: #fff;
+}
+
+section {
+    margin: 10px;
+    padding: 10px;
+    border: 2px solid #fff;
+}
+
+.marquee {
+    position: relative;
+    overflow: hidden;
+}
+
+.marquee-text {
+    width: fit-content;
+    display: flex;
+    position: relative;
+    white-space: nowrap;
+    transform: translateX(0);
+    animation: marquee 20s linear infinite;
+}
+
+@keyframes marquee {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+
+#trackname {
+    color: #888;
+    font-weight: 100;
+}
+
+#trackname span {
+    display: inline-block;
+    color: #0f0;
+    margin: 0 5px;
+}
+
+#trackname span::first-letter {
+    color: #ff0;
+}
+
+#trackname span::after {
+    content: ",";
+}
+
+#trackname span:last-of-type::after {
+    content: ' |';
+}
+
+#trackname span.tl-letter {
+    text-transform: uppercase;
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+    font-style: italic;
+    color: #666;
+}
+
+#trackname span.tl-letter::first-letter {
+    color: #666;
+}
+
+section.curr-lists {
+    position: relative;
+}
+
+section.curr-lists div {
+    display: flex;
+    width: 100%;
+}
+
+section.top-list {
+    flex: 1;
+}
+
+section.top-list h2 span {
+    color: #888;
+    font-weight: 100;
+    font-style: italic;
+}
+
+section.top-list ol {
+    margin: 0;
+    line-height: 16.5px;
+    height: 165px;
+    overflow: scroll;
 }
 
 #chart-form {
@@ -27,14 +119,14 @@ body {
 }
 
 #chart-form * {
-    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
 }
 
 #chart-form input {
     width: 5em;
 }
 
-section.chart {
+section.chartarea {
     margin: 0.83em 0;
     white-space: pre-line;
 }

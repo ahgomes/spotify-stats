@@ -10,8 +10,7 @@ const TOKENS = {
     hor: '─',
     vert: '│',
     point: '•',
-    //square: ['┌', '┬', '┐', '├', '┼', '┤', '└', '┴', '┘'],
-    square: ['1', '0', '0', '0', '0', '$', '0', '0', '.'], //ur spending money to see fake money grow on ur computer
+    square: ['┌', '┬', '┐', '├', '┼', '┤', '└', '┴', '┘'],
     curved: ['╭', '┬', '╮', '├', '┼', '┤', '╰', '┴', '╯'],
     nbsp: '\xa0',
 };
@@ -158,9 +157,10 @@ async function test(id, access_token, max = 10, type = 'artists', time_range = '
         min: min,
         max: max,
         colors: gen_colors(max),
-        height: (max <= 10) ? (max - 1) * 2 : max - 1, 
+        //height: (max <= 10) ? (max - 1) * 2 : max - 1, 
         yticks: max,
         legend: keys,
+        style: 'curved',
     });
 }
 

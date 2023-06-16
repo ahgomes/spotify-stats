@@ -1,7 +1,29 @@
-<h1>{{username}}</h1>
-{{> top-list title='top artists' list=this.artists}}
-{{> top-list title='top tracks' list=this.tracks}}
-{{> chart-form max=this.form.max count=this.form.count type=this.form.type time-range=form.time_range}}
-<section class="chart">
-    {{{chart}}}
+<section>
+    <div id="trackname" class="marquee">
+        <div class="marquee-text">
+            <div>{{{ tracklist }}}</div>
+            <div>{{{ tracklist }}}</div>
+        </div>
+    </div>
+    <h1>{{username}}</h1>
+    <section class="curr-lists">
+        <h2>current tops</h2>
+        <div>
+            {{> top-list type='artists' time-range=this.artists.time_range list=this.artists.list}}
+            {{> top-list type='tracks' time-range=this.tracks.time_range list=this.tracks.list}}
+        </div>
+    </section>
+    <section id="#chart">
+        <h2>chart</h2>
+        {{> chart-form max=this.form.max count=this.form.count type=this.form.type time-range=form.time_range}}
+        <section class="chartarea">
+            {{{chart}}}
+        </section>
+    </section>
 </section>
+<script> 
+    let scroll_point = "{{scroll_to}}"; 
+    if (scroll_point != undefined && scroll_point != '') {
+        document.getElementById(scroll_point).scrollIntoView(true);
+    }
+</script>

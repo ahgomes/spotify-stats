@@ -21,7 +21,7 @@ function entries_to_keys(obj, fill = -1, cap) {
 
 function unique_values(obj) { // metadata life cycle 
     let { metadata, ...rest } = obj; //twink death
-    return new Set(Object.entries(rest).map(e => e[1]).flat()).size; //twink birth
+    return new Set(Object.entries(rest).map(e => e[1]).flat()); //twink birth
 }
 
 // for insterting current top to past tops object in user data
@@ -35,7 +35,7 @@ function insert(from, to, opt = {metadata: {}, update: false}) {
             if (to[e[0]][se[0]] == undefined) to[e[0]][se[0]] = { metadata: opt.metadata };
             to[e[0]][se[0]][date_str] = se[1];
             if (opt.update) {
-                to[e[0]][se[0]].metadata.max_index = unique_values(to[e[0]][se[0]]);
+                to[e[0]][se[0]].metadata.max_index = unique_values(to[e[0]][se[0]]).size;
             }
         });
 
@@ -44,8 +44,18 @@ function insert(from, to, opt = {metadata: {}, update: false}) {
     return to;
 } 
 
+function sort_by_letter(set) {
+    let dict = {};
+    set.forEach((e => {
+        let l = e.at(0).toLowerCase();
+        dict[l] = (dict[l] == undefined) ? [e] : dict[l].concat([e]);
+    }))
+    return dict;
+}
+
 module.exports = {
     entries_to_keys, 
     unique_values,
     insert,
+    sort_by_letter,
 };
