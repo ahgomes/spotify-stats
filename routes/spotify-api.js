@@ -40,15 +40,17 @@ router.get('/', async (req, res) => {
             let artists = await spotify_data.get_top(access_token, 'artists', 'short_term', 50, 0);
             let tracks = await spotify_data.get_top(access_token, 'tracks', 'short_term', 50, 0);
             artists = spotify_data.get_from_items(artists.items, 'name');
-            tracks = spotify_data.get_from_items(tracks.items, 'name');
+            let track_titles = spotify_data.get_from_items(tracks.items, 'name');
+            let track_artists = spotify_data.get_from_items(tracks.items, 'artists');
+            track_artists = track_artists.map(ta => spotify_data.get_from_items(ta, 'name').join(', '))
 
-            // let past_tracks = objects.unique_values(user.past_tops.tracks.short_term);
-            // past_tracks = await spotify_data.get_group(access_token, 'tracks', Array.from(past_tracks));
-            // past_tracks = spotify_data.get_from_items(past_tracks, 'name')
-            // let dict = objects.sort_by_letter(new Set(past_tracks));
-            let artist_tracks = await spotify_data.get_artist_tracks(access_token, user.top.artists.long_term[0]);
-            artist_tracks = spotify_data.get_from_items(artist_tracks, 'name');
-            let dict = objects.sort_by_letter(new Set(artist_tracks));
+            let past_tracks = objects.unique_values(user.past_tops.tracks.short_term);
+            past_tracks = await spotify_data.get_group(access_token, 'tracks', Array.from(past_tracks));
+            past_tracks = spotify_data.get_from_items(past_tracks, 'name')
+            let dict = objects.sort_by_letter(new Set(past_tracks));
+            // let artist_tracks = await spotify_data.get_artist_tracks(access_token, user.top.artists.long_term[0]);
+            // artist_tracks = spotify_data.get_from_items(artist_tracks, 'name');
+            // let dict = objects.sort_by_letter(new Set(artist_tracks));
             const span = (str, found) => {
                 return `<span${(!found) ? ` class="tl-letter"` : ''}>${str}</span>`;
             };
@@ -61,15 +63,15 @@ router.get('/', async (req, res) => {
             type = type || 'artists';
             time_range = time_range || 'short_term';
             
-            let form_max = user['past_tops'][type][time_range].metadata.max_index;
             // TODO: validate query string
+            
             res.render('index', { 
                 title: 'Spotify Stats',
                 username,
                 tracklist, 
                 artists: { time_range: 'last month', list: artists },
-                tracks: { time_range: 'last month', list: tracks},
-                form: { max: form_max, count, type, time_range},
+                tracks: { time_range: 'last month', list: track_titles, paired: track_artists },
+                form: { max: spotify_data.MAX_QUERY_LENGTH, count, type, time_range},
                 chart: await charts.test(username, access_token, chart_max, type, time_range),
                 scroll_to: (scroll_to_chart) ? '#chart' : undefined,
             });

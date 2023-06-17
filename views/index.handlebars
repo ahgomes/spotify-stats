@@ -9,13 +9,13 @@
     <section class="curr-lists">
         <h2>current tops</h2>
         <div>
-            {{> top-list type='artists' time-range=this.artists.time_range list=this.artists.list}}
-            {{> top-list type='tracks' time-range=this.tracks.time_range list=this.tracks.list}}
+            {{> top-list type='artists' ctx=artists }}
+            {{> top-list type='tracks' ctx=tracks }}
         </div>
     </section>
     <section id="#chart">
         <h2>chart</h2>
-        {{> chart-form max=this.form.max count=this.form.count type=this.form.type time-range=form.time_range}}
+        {{> chart-form ctx=form }}
         <section class="chartarea">
             {{{chart}}}
         </section>

@@ -1,6 +1,13 @@
-<section class="top-list">
-    <h2>top {{type}} <span>{{time-range}}</span></h2>
+<section class="top-list {{type}}">
+    {{#with ctx}}
+    <div>
+        <h2>top {{../type}}</h2>
+        <span>{{time_range}}</span>
+    </div>
     <ol>
-        {{#each list}} <li>{{this}}</li> {{/each}}
+        {{#each list}} 
+            <li>{{this}} {{#if ../paired}}<span>{{lookup ../paired @index}}</span>{{/if}}</li>
+        {{/each}}
     </ol>
+    {{/with}}
 </section>

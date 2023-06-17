@@ -97,14 +97,24 @@ section.curr-lists div {
     width: 100%;
 }
 
-section.top-list {
-    flex: 1;
+section.top-list div * {
+    display: inline-block;
+    margin-top: 0.83em;
 }
 
-section.top-list h2 span {
+section.top-list div span {
     color: #888;
     font-weight: 100;
     font-style: italic;
+    margin-left: 5px;
+}
+
+section.top-list.artists {
+    flex: 0.5;
+}
+
+section.top-list.tracks {
+    flex: 1;
 }
 
 section.top-list ol {
@@ -112,6 +122,12 @@ section.top-list ol {
     line-height: 16.5px;
     height: 165px;
     overflow: scroll;
+}
+
+section.top-list ol li span {
+    color: #888;
+    font-weight: 100;
+    font-style: italic;
 }
 
 #chart-form {
@@ -123,7 +139,35 @@ section.top-list ol {
 }
 
 #chart-form input {
-    width: 5em;
+    background: #555;
+    color: #fff;
+    border: none; 
+}
+
+#chart-form input[type=number] {
+    width: 2em;
+    margin: 0;
+    padding: 2px;
+    text-align: center;
+    border-radius: 2px;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* #chart-form input[type=number]:focus {
+    outline: none;
+} */
+
+#chart-form select {
+    background: #111;
+    color: #fff;
+    border: none;
 }
 
 section.chartarea {
