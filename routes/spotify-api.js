@@ -7,7 +7,7 @@
  * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
  */
 
-const { generateRandomString } = require('../src/utils/strings');
+const strings = require('../src/utils/strings');
 const charts = require('../src/utils/charts');
 const objects = require('../src/utils/objects');
 const { spotify_data, user_data } = require('../data');
@@ -42,19 +42,17 @@ router.get('/', async (req, res) => {
             artists = spotify_data.get_from_items(artists.items, 'name');
             tracks = spotify_data.get_from_items(tracks.items, 'name');
 
-            let dict = objects.sort_by_letter(new Set(tracks));
-            
-            const span = (str, cls) => `<span${(cls) ? ` class="${cls}"` : ''}>${str}</span>`;
-            const track_string = (str) => {
-                return str.split('').map(c => {
-                    if (dict[c] == undefined) return span(c, 'tl-letter');
-                    let t = dict[c].shift();
-                    dict[c].push(t);
-                    return span(t);
-                }).join('');
+            // let past_tracks = objects.unique_values(user.past_tops.tracks.short_term);
+            // past_tracks = await spotify_data.get_group(access_token, 'tracks', Array.from(past_tracks));
+            // past_tracks = spotify_data.get_from_items(past_tracks, 'name')
+            // let dict = objects.sort_by_letter(new Set(past_tracks));
+            let artist_tracks = await spotify_data.get_artist_tracks(access_token, user.top.artists.long_term[0]);
+            artist_tracks = spotify_data.get_from_items(artist_tracks, 'name');
+            let dict = objects.sort_by_letter(new Set(artist_tracks));
+            const span = (str, found) => {
+                return `<span${(!found) ? ` class="tl-letter"` : ''}>${str}</span>`;
             };
-            
-            let tracklist = track_string(username);
+            let tracklist = strings.string_to_tracklist(username, dict, span).join('');
 
             let { count, type, time_range } = req.query;
             let chart_max = (count != undefined && count != NaN) ? Number(count) : undefined;
@@ -82,7 +80,7 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/login', async (req, res) => {
-    let state = generateRandomString(16);
+    let state = strings.gen_rand_str(16);
     let scope = 'user-read-private user-read-email user-top-read';
 
     res.redirect('https://accounts.spotify.com/authorize?' +

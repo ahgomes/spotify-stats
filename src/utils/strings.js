@@ -1,5 +1,5 @@
 
-let generateRandomString = (length) => {
+function gen_rand_str(length) {
     let text = '';
     let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -9,7 +9,7 @@ let generateRandomString = (length) => {
     return text;
 };
 
-const check_string_nonempty = (string, name) => {
+function check_string_nonempty(string, name) {
     if (string == undefined || typeof string != 'string')
         throw 'Error: No string provided'
         + ((name) ? ` for "${name}".` : '.');
@@ -22,8 +22,18 @@ const check_string_nonempty = (string, name) => {
     return str;
 };
 
+function string_to_tracklist(str, dict, format = (str, found) => str) {
+    return str.split('').map(c => {
+        if (dict[c] == undefined) return format(c, false);
+        let t = dict[c].shift();
+        dict[c].push(t);
+        return format(t, true);
+    });
+};
+
 
 module.exports = {
-    generateRandomString,
+    gen_rand_str,
     check_string_nonempty,
+    string_to_tracklist,
 }

@@ -1,4 +1,4 @@
-const { generateRandomString } = require('./src/utils/strings');
+const { gen_rand_str } = require('./src/utils/strings');
 
 const express = require('express');
 const app = express();
@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
     name: 'spotify_auth',
-    secret: generateRandomString(36),
+    secret: gen_rand_str(36),
     resave: true,
     saveUninitialized: true,
     cookie: { maxAge: 3600000 },

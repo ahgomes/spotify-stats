@@ -1,10 +1,21 @@
 const axios = require('axios');
 const { log } = require('console');
+const { access } = require('fs');
 const querystring = require('querystring');
 
 const MAX_QUERY_LENGTH = 50;
 
 const get_from_items = (items, selection) => items.map(i => i[selection]);
+const std_get = async (access_token, url, params = {}) => {
+    const response = await axios.get(url, {
+        params,
+        headers: {
+            Authorization: `Bearer ${access_token}`
+        }
+    });
+
+    return response.data;
+};
 
 async function get_auth(code, redirect_uri, auth_token) {
     const url = 'https://accounts.spotify.com/api/token';
@@ -43,13 +54,8 @@ async function get_auth_from_refresh(refresh_token, auth_token) {
 
 async function get_curr_user_profile(access_token) {
     const url = 'https://api.spotify.com/v1/me';
-    const response = await axios.get(url, {
-        headers: {
-            Authorization: `Bearer ${access_token}`
-        }
-    });
-
-    return response.data;
+    const profile = await std_get(access_token, url);
+    return profile;
 }
 
 async function get_curr_user_id(access_token) {
@@ -77,29 +83,22 @@ async function get_all_top(access_token) {
 
 async function get_top(access_token, type, time_range, limit, offset) {
     const url = `https://api.spotify.com/v1/me/top/${type}`;
-    const response = await axios.get(url, {
-        params: {
-            time_range: time_range,
-            limit: limit,
-            offset: offset
-        },
-        headers: {
-            Authorization: `Bearer ${access_token}`
-        }
-    });
 
-    return response.data;
+    let params = {
+        time_range,
+        limit,
+        offset
+    };
+
+    const res = await std_get(access_token, url, params);
+
+    return res;
 }
 
 async function get_one(access_token, type, id) {
     const url = `https://api.spotify.com/v1/${type}/${id}`;
-    const response = await axios.get(url, {
-        headers: {
-            Authorization: `Bearer ${access_token}`
-        }
-    });
-
-    return response.data;
+    const res = await std_get(access_token, url);
+    return res;
 }
 
 async function get_group(access_token, type, ids) {
@@ -107,16 +106,12 @@ async function get_group(access_token, type, ids) {
 
     const get_chunk = async (ids_chunk) => {
         const url = `https://api.spotify.com/v1/${type}`;
-        const response = await axios.get(url, {
-            params: {
-                ids: ids_chunk.join()
-            },
-            headers: {
-                Authorization: `Bearer ${access_token}`
-            }
-        });
+        const params = {
+            ids: ids_chunk.join()
+        };
+        const res = await std_get(access_token, url, params);
 
-        return response.data[type];
+        return res[type];
     }
 
     for (let i = 0; i < ids.length; i += MAX_QUERY_LENGTH) {
@@ -126,6 +121,34 @@ async function get_group(access_token, type, ids) {
     }
 
     return group;
+}
+
+async function get_album_tracks(access_token, id) {
+    const url = `https://api.spotify.com/v1/albums/${id}/tracks`;
+    const params = {
+        limit: MAX_QUERY_LENGTH,
+        offset: 0,
+    };
+    const tracks = await std_get(access_token, url, params);
+    return tracks;
+}
+
+async function get_artist_tracks(access_token, id) {
+    const url = `https://api.spotify.com/v1/artists/${id}/albums`;
+    const params = {
+        // include_groups: 'albums', 
+        limit: MAX_QUERY_LENGTH,
+        offset: 0,
+    };
+    const albums = await std_get(access_token, url, params);
+    const ids = get_from_items(albums.items, 'id');
+    // ?? Check if need to do chuncks
+    let tracks = await Promise.all(ids.map(async (i) => {
+        return await get_album_tracks(access_token, i);
+    }));
+    tracks = get_from_items(tracks, 'items').flat();
+    
+    return tracks;
 }
 
 module.exports = {
@@ -139,4 +162,6 @@ module.exports = {
     get_top,
     get_one,
     get_group,
+    get_album_tracks,
+    get_artist_tracks,
 };
