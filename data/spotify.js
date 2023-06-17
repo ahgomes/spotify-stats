@@ -1,11 +1,9 @@
 const axios = require('axios');
-const { log } = require('console');
-const { access } = require('fs');
 const querystring = require('querystring');
+const { get_from_items } = require('../src/utils/objects');
 
 const MAX_QUERY_LENGTH = 50;
 
-const get_from_items = (items, selection) => items.map(i => i[selection]);
 const std_get = async (access_token, url, params = {}) => {
     const response = await axios.get(url, {
         params,
@@ -143,6 +141,7 @@ async function get_artist_tracks(access_token, id) {
     const albums = await std_get(access_token, url, params);
     const ids = get_from_items(albums.items, 'id');
     // ?? Check if need to do chuncks
+    // TODO: check for repeat songs
     let tracks = await Promise.all(ids.map(async (i) => {
         return await get_album_tracks(access_token, i);
     }));
@@ -151,9 +150,14 @@ async function get_artist_tracks(access_token, id) {
     return tracks;
 }
 
+async function get_top_genres(access_token, time_range, limit, offset) {
+    const artists = await get_top(access_token, 'artists', time_range, limit, offset);
+    const genres = get_from_items(artists.items, 'genres')
+    console.log(genres);
+}
+
 module.exports = {
-    MAX_QUERY_LENGTH, 
-    get_from_items,
+    MAX_QUERY_LENGTH,
     get_auth,
     get_auth_from_refresh,
     get_curr_user_profile,
@@ -164,4 +168,5 @@ module.exports = {
     get_group,
     get_album_tracks,
     get_artist_tracks,
+    get_top_genres,
 };

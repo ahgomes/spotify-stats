@@ -5,8 +5,11 @@
         <span>{{time_range}}</span>
     </div>
     <ol>
-        {{#each list}} 
-            <li>{{this}} {{#if ../paired}}<span>{{lookup ../paired @index}}</span>{{/if}}</li>
+        {{#each list.name}} 
+            <li><a href="{{lookup ../list.external_urls_spotify @index}}" target="_blank">
+                {{this}} 
+                {{#if ../paired}}<span>{{lookup ../paired @index}}</span>{{/if}}
+            </a></li>
         {{/each}}
     </ol>
     {{/with}}

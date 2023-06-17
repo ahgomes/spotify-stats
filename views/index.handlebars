@@ -5,9 +5,14 @@
             <div>{{{ tracklist }}}</div>
         </div>
     </div>
-    <h1>{{username}}</h1>
+    <div class="heading">
+        <h1>{{username}}</h1>
+        <a href="https://open.spotify.com/" target="_blank">
+            <img id="logo" src="public/assets/Spotify_Logo_RGB_White.png" alt="spotify logo" />
+        </a>
+    </div>
     <section class="curr-lists">
-        <h2>current tops</h2>
+        <h2>your current tops</h2>
         <div>
             {{> top-list type='artists' ctx=artists }}
             {{> top-list type='tracks' ctx=tracks }}

@@ -53,9 +53,29 @@ function sort_by_letter(set) {
     return dict;
 }
 
+function get_from_items(items, selection) {
+    if (typeof selection == 'string') {
+        let keys = selection.split('.');
+        if (keys.length == 1)
+            return items.map(i => i[selection]);
+
+        let res = get_from_items(items, keys.shift());
+        return get_from_items(res, keys.join('.'));
+    }
+
+    let collection = {};
+    selection.forEach((s => {
+        let key = s.split('.').join('_');
+        collection[key] = get_from_items(items, s);
+    }));
+
+    return collection;
+};
+
 module.exports = {
     entries_to_keys, 
     unique_values,
     insert,
     sort_by_letter,
+    get_from_items,
 };

@@ -91,7 +91,8 @@ function plot(data, layout = {}) {
         plane[y - rmin][offset - 1] = token;
     }
 
-    const outside = (p) => p < 0 || p >= plane.length;
+    // check if outside plotting region
+    const outside = (p) => p < 0 || p >= plane.length; 
 
     for (let j = 0; j < data.length; j++) {
         let curr_clr = colors[j % colors.length];
@@ -149,7 +150,7 @@ async function test(id, access_token, max = 10, type = 'artists', time_range = '
     let data = Object.values(pos)
     let ids = Object.keys(pos);
     let keys = await spotify_data.get_group(access_token, type, ids);
-    keys = spotify_data.get_from_items(keys, 'name')  
+    keys = objects.get_from_items(keys, 'name')  //? add urls
     data = data.map(x => x.map(y => max - y));
     return plot(data, {
         //title: `top ${max} ${type}`, 
@@ -165,5 +166,6 @@ async function test(id, access_token, max = 10, type = 'artists', time_range = '
 }
 
 module.exports = {
+    plot,
     test,
 };

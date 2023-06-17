@@ -12,18 +12,24 @@
     }
 } */
 
+:root {
+    --std-margin: 0.83em;
+    --std-bkgd: #111;
+    --std-color: #fff;
+}
+
 * {
     font-size: 14px;
     font-family: monospace;
 }
 
 body {
-    background: #111;
-    color: #fff;
+    background: var(--std-bkgd);
+    color: var(--std-color);
 }
 
 section {
-    margin: 10px;
+    margin: var(--std-margin);
     padding: 10px;
     border: 2px solid #fff;
 }
@@ -51,7 +57,6 @@ section {
         transform: translateX(-50%);
     }
 }
-
 
 #trackname {
     color: #888;
@@ -88,18 +93,33 @@ section {
     color: #666;
 }
 
-section.curr-lists {
+.heading {
+    display: block;
     position: relative;
+    margin: var(--std-margin);
+    padding: 10px 0;
+}
+
+.heading h1 {
+    display: inline-block;
+    margin: 0;
+}
+
+.heading #logo {
+    display: inline-block;
+    position: absolute;
+    top: calc(var(--std-margin) / 2);
+    right: 0;
+    height: 24px;
 }
 
 section.curr-lists div {
     display: flex;
-    width: 100%;
 }
 
 section.top-list div * {
     display: inline-block;
-    margin-top: 0.83em;
+    margin-top: var(--std-margin);
 }
 
 section.top-list div span {
@@ -124,14 +144,20 @@ section.top-list ol {
     overflow: scroll;
 }
 
-section.top-list ol li span {
+section.top-list ol li a {
+    color: var(--std-color);
+    text-decoration: none;
+
+}
+
+section.top-list ol li a span {
     color: #888;
     font-weight: 100;
     font-style: italic;
 }
 
 #chart-form {
-    margin: 0.83em 0 0.83em 0;
+    margin: var(--std-margin) 0;
 }
 
 #chart-form * {
@@ -140,7 +166,7 @@ section.top-list ol li span {
 
 #chart-form input {
     background: #555;
-    color: #fff;
+    color: var(--std-color);
     border: none; 
 }
 
@@ -165,12 +191,12 @@ input[type=number]::-webkit-outer-spin-button {
 } */
 
 #chart-form select {
-    background: #111;
-    color: #fff;
+    background: var(--std-bkgd);
+    color: var(--std-color);
     border: none;
 }
 
 section.chartarea {
-    margin: 0.83em 0;
+    margin: var(--std-margin) 0;
     white-space: pre-line;
 }
