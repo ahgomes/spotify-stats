@@ -100,6 +100,10 @@ section {
     padding: 10px 0;
 }
 
+.heading span {
+    color: #888;
+}
+
 .heading h1 {
     display: inline-block;
     margin: 0;

@@ -32,8 +32,9 @@ router.get('/', async (req, res) => {
     if (!access_token) res.redirect('/login');
     else { 
         try {
+            let spotify_user = await spotify_data.get_curr_user_profile(access_token);
             if (!req.session.user)
-                req.session.user = await spotify_data.get_curr_user_id(access_token);
+                req.session.user = spotify_user.id;
             let username = req.session.user;
             let user = await user_data.get_user(username);
             
@@ -54,7 +55,7 @@ router.get('/', async (req, res) => {
             const span = (str, found) => {
                 return `<span${(!found) ? ` class="tl-letter"` : ''}>${str}</span>`;
             };
-            let tracklist = strings.string_to_tracklist(username, dict, span).join('');
+            let trackname = strings.string_to_tracklist(username, dict, span).join('');
 
             let { count, type, time_range } = req.query;
             let chart_max = (count != undefined && count != NaN) ? Number(count) : undefined;
@@ -63,16 +64,30 @@ router.get('/', async (req, res) => {
             type = type || 'artists';
             time_range = time_range || 'short_term';
 
-            spotify_data.get_top_genres(access_token, time_range, count, 0);
+            let genres = await spotify_data.get_top_genres(access_token, time_range, 50, 0);
             
             // TODO: validate query string
             
             res.render('index', { 
                 title: 'Spotify Stats',
+                display_name: spotify_user.display_name,
                 username,
-                tracklist, 
-                artists: { time_range: 'last month', list: artists },
-                tracks: { time_range: 'last month', list: track_list, paired: track_artists },
+                trackname, 
+                artists: { 
+                    time_range: 'last month', 
+                    names: artists.name, 
+                    urls: artists.external_urls_spotify 
+                },
+                tracks: { 
+                    time_range: 'last month', 
+                    names: track_list.name, 
+                    urls: track_list.external_urls_spotify,
+                    paired: track_artists 
+                },
+                genres: {
+                    time_range: 'last month',
+                    names: genres,
+                },
                 form: { max: spotify_data.MAX_QUERY_LENGTH, count, type, time_range},
                 chart: await charts.test(username, access_token, chart_max, type, time_range),
                 scroll_to: (scroll_to_chart) ? '#chart' : undefined,

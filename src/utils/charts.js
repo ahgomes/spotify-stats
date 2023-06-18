@@ -15,9 +15,9 @@ const TOKENS = {
     nbsp: '\xa0',
 };
 
-const color = (tkn, clr) => {
+const color = (tkn, clr, idx) => {
     if (!clr) return tkn;
-    return `<span style="color:${clr}">${tkn}</span>`;
+    return `<span class="chart-line cl${idx}" style="color:${clr}">${tkn}</span>`;
 };
 
 /**  
@@ -38,7 +38,7 @@ const gen_colors = (n) => {
 function legend(keys, colors) {
     return keys.map((k, i) => {
         let curr_clr = colors[i % colors.length];
-        return TOKENS.nbsp + color(TOKENS.hor, curr_clr) + TOKENS.nbsp + k;
+        return `<span class="legend-key lk${i}">${color(TOKENS.hor, curr_clr, i)} ${k}</span>`;
     }).join('\n');
 }
 
@@ -102,21 +102,21 @@ function plot(data, layout = {}) {
             let y1 = Math.round(data[j][x + 1] * ratio) - rmin;
             if (y0 == y1) {
                 if (outside(rows - y0)) continue;
-                plane[rows - y0][x + offset] = color(TOKENS.hor, curr_clr);
+                plane[rows - y0][x + offset] = color(TOKENS.hor, curr_clr, j);
             } else {
                 if (!outside(rows - y1)) {
                     plane[rows - y1][x + offset] = color(
-                        (y0 > y1) ? TOKENS[style][6] : TOKENS[style][0], curr_clr);
+                        (y0 > y1) ? TOKENS[style][6] : TOKENS[style][0], curr_clr, j);
                 }
                 if (!outside(rows - y0)) {
                     plane[rows - y0][x + offset] = color(
-                        (y0 > y1) ? TOKENS[style][2] : TOKENS[style][8], curr_clr);
+                        (y0 > y1) ? TOKENS[style][2] : TOKENS[style][8], curr_clr, j);
                 }
                 let from = Math.min(y0, y1);
                 let to = Math.max(y0, y1);
                 for (let y = from + 1; y < to; y++) {
                     if (outside(rows - y)) continue;
-                    plane[rows - y][x + offset] = color(TOKENS.vert, curr_clr);
+                    plane[rows - y][x + offset] = color(TOKENS.vert, curr_clr, j);
                 }
             }
         }

@@ -153,7 +153,19 @@ async function get_artist_tracks(access_token, id) {
 async function get_top_genres(access_token, time_range, limit, offset) {
     const artists = await get_top(access_token, 'artists', time_range, limit, offset);
     const genres = get_from_items(artists.items, 'genres')
-    console.log(genres);
+    let o = {};
+    genres.forEach((gg, i) => {
+        gg.forEach(g => {
+            if (o[g] == undefined) o[g] = [0, 0, 0];
+            o[g][0] += i;
+            o[g][1]++;
+            o[g][2] = o[g][0] / o[g][1];
+        })
+    });
+    let ranked = Object.entries(o).sort((a, b) => {
+        return (b[1][1] - a[1][1] == 0) ? (a[1][2] - b[1][2]) : (b[1][1] - a[1][1]);
+    }).map(e => e[0]);  
+    return ranked;  
 }
 
 module.exports = {
