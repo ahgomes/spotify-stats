@@ -65,7 +65,9 @@ router.get('/', async (req, res) => {
             time_range = time_range || 'short_term';
 
             let genres = await spotify_data.get_top_genres(access_token, time_range, 50, 0);
-            
+            // let past_artists = objects.entries_to_keys(user['past_tops'][type][time_range], 50, 50);
+            // let artist_genres = await spotify_data.artist_to_genre_rank(access_token, Object.keys(artists), Object.values(past_artists));
+            // console.log(artist_genres)
             // TODO: validate query string
             
             res.render('index', { 

@@ -168,6 +168,12 @@ async function get_top_genres(access_token, time_range, limit, offset) {
     return ranked;  
 }
 
+async function artist_to_genre_rank(access_token, ids, rankings) {
+    const artists = await get_group(access_token, 'artists', ids);
+    const genres = get_from_items(artists, 'genres');
+    
+}
+
 module.exports = {
     MAX_QUERY_LENGTH,
     get_auth,

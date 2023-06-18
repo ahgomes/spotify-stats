@@ -1,8 +1,8 @@
 <section>
     <div id="trackname" class="marquee">
         <div class="marquee-text">
-            <div>{{{ tracklist }}}</div>
-            <div>{{{ tracklist }}}</div>
+            <div>{{{ trackname }}}</div>
+            <div>{{{ trackname }}}</div>
         </div>
     </div>
     <div class="heading">
@@ -32,4 +32,6 @@
     if (scroll_point != undefined && scroll_point != '') {
         document.getElementById(scroll_point).scrollIntoView(true);
     }
+
+    let count = {{form.count}};
 </script>

@@ -36,10 +36,17 @@ const gen_colors = (n) => {
 };
 
 function legend(keys, colors) {
-    return keys.map((k, i) => {
+    const hover = `
+         document.querySelectorAll('.cl' + this.id.slice(2)).forEach(cl => cl.classList.add('selected-cl'));
+    `;
+    const unhover = `
+        document.querySelectorAll('.cl' + this.id.slice(2)).forEach(cl => cl.classList.remove('selected-cl'));
+    `;
+    const legend = keys.map((k, i) => {
         let curr_clr = colors[i % colors.length];
-        return `<span class="legend-key lk${i}">${color(TOKENS.hor, curr_clr, i)} ${k}</span>`;
+        return `<span class="legend-key" id="lk${i}" onmouseover="${hover}" onmouseout="${unhover}">${color(TOKENS.hor, curr_clr, i)} ${k}</span>`;
     }).join('\n');
+    return `<div class="legend">${legend}</div>`
 }
 
 function plot(data, layout = {}) {
@@ -129,12 +136,10 @@ function plot(data, layout = {}) {
         plane.unshift(title_card);
     }
 
-    if (layout.legend != undefined) {
-        plane.push([]);
-        plane.push([legend(layout.legend, colors)]);
-    }
-
-    return plane.map(r => r.join('')).join('\n');
+    return `
+        <div class="plane">${plane.map(r => r.join('')).join('\n')}</div>
+        ${(layout.legend != undefined) ? legend(layout.legend, colors) : ''}
+    `;
 }
 
 async function test(id, access_token, max = 10, type = 'artists', time_range = 'short_term') {

@@ -133,7 +133,8 @@ section.top-list div span {
     margin-left: 5px;
 }
 
-section.top-list.artists {
+section.top-list.artists, 
+section.top-list.genres {
     flex: 0.5;
 }
 
@@ -202,5 +203,23 @@ input[type=number]::-webkit-outer-spin-button {
 
 section.chartarea {
     margin: var(--std-margin) 0;
+    
+}
+
+.selected-cl {
+    color: #fff !important;
+    text-shadow: #FC0 1px 0 10px;
+}
+
+.plane, .legend {
+    display: inline-block;
     white-space: pre-line;
+}
+
+.legend {
+    height: 100px;
+    overflow: scroll;
+    margin: 50px;
+    padding: 10px;
+    border: 2px solid #fff;
 }
