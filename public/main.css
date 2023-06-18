@@ -203,23 +203,25 @@ input[type=number]::-webkit-outer-spin-button {
 
 section.chartarea {
     margin: var(--std-margin) 0;
-    
+    cursor: default;
+}
+
+.plane {
+    display: inline-block;
+    position: relative;
+    white-space: pre-line;
+    margin: var(--std-margin);
 }
 
 .selected-cl {
     color: #fff !important;
-    text-shadow: #FC0 1px 0 10px;
+    text-shadow: #fc0 1px 0 10px;
 }
 
-.plane, .legend {
-    display: inline-block;
-    white-space: pre-line;
-}
-
-.legend {
-    height: 100px;
-    overflow: scroll;
-    margin: 50px;
-    padding: 10px;
-    border: 2px solid #fff;
+.last-cl::after {
+    content: attr(data-key);
+    position: absolute;
+    left: 100%;
+    white-space: nowrap;
+    margin: 0 var(--std-margin);
 }

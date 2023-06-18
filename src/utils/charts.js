@@ -15,9 +15,13 @@ const TOKENS = {
     nbsp: '\xa0',
 };
 
-const color = (tkn, clr, idx) => {
-    if (!clr) return tkn;
-    return `<span class="chart-line cl${idx}" style="color:${clr}">${tkn}</span>`;
+const color = (tkn, clr, i, key) => {
+    if (!clr) 
+        return tkn;
+
+    const hover = `let q=document.querySelectorAll('.cl${i}');q.forEach(l=>l.classList.add('selected-cl'));q[Math.trunc(q.length / 2)].classList.add('last-cl')`;
+    const unhover = hover.replaceAll('add', 'remove');
+    return `<span class="chart-line cl${i}" style="color:${clr}" onmouseover="${hover}" onmouseout="${unhover}" data-key="${key}">${tkn}</span>`;
 };
 
 /**  
@@ -36,15 +40,9 @@ const gen_colors = (n) => {
 };
 
 function legend(keys, colors) {
-    const hover = `
-         document.querySelectorAll('.cl' + this.id.slice(2)).forEach(cl => cl.classList.add('selected-cl'));
-    `;
-    const unhover = `
-        document.querySelectorAll('.cl' + this.id.slice(2)).forEach(cl => cl.classList.remove('selected-cl'));
-    `;
     const legend = keys.map((k, i) => {
         let curr_clr = colors[i % colors.length];
-        return `<span class="legend-key" id="lk${i}" onmouseover="${hover}" onmouseout="${unhover}">${color(TOKENS.hor, curr_clr, i)} ${k}</span>`;
+        return `<span class="legend-key" id="lk${i}">${color(TOKENS.hor, curr_clr, i)} ${k}</span>`;
     }).join('\n');
     return `<div class="legend">${legend}</div>`
 }
@@ -64,6 +62,8 @@ function plot(data, layout = {}) {
     let colors = layout.colors ?? [];
     let style = layout.style ?? 'square';
     let title = layout.title ?? '';
+    let has_legend = layout.has_legend ?? false;
+    let keys = layout.keys || Array(max).fill('');
 
     let ratio = range != 0 ? height / range : 1;
     let rmin = Math.round(min * ratio);
@@ -109,21 +109,21 @@ function plot(data, layout = {}) {
             let y1 = Math.round(data[j][x + 1] * ratio) - rmin;
             if (y0 == y1) {
                 if (outside(rows - y0)) continue;
-                plane[rows - y0][x + offset] = color(TOKENS.hor, curr_clr, j);
+                plane[rows - y0][x + offset] = color(TOKENS.hor, curr_clr, j, keys[j]);
             } else {
                 if (!outside(rows - y1)) {
                     plane[rows - y1][x + offset] = color(
-                        (y0 > y1) ? TOKENS[style][6] : TOKENS[style][0], curr_clr, j);
+                        (y0 > y1) ? TOKENS[style][6] : TOKENS[style][0], curr_clr, j, keys[j]);
                 }
                 if (!outside(rows - y0)) {
                     plane[rows - y0][x + offset] = color(
-                        (y0 > y1) ? TOKENS[style][2] : TOKENS[style][8], curr_clr, j);
+                        (y0 > y1) ? TOKENS[style][2] : TOKENS[style][8], curr_clr, j, keys[j]);
                 }
                 let from = Math.min(y0, y1);
                 let to = Math.max(y0, y1);
                 for (let y = from + 1; y < to; y++) {
                     if (outside(rows - y)) continue;
-                    plane[rows - y][x + offset] = color(TOKENS.vert, curr_clr, j);
+                    plane[rows - y][x + offset] = color(TOKENS.vert, curr_clr, j, keys[j]);
                 }
             }
         }
@@ -138,7 +138,7 @@ function plot(data, layout = {}) {
 
     return `
         <div class="plane">${plane.map(r => r.join('')).join('\n')}</div>
-        ${(layout.legend != undefined) ? legend(layout.legend, colors) : ''}
+        ${(has_legend) ? legend(keys, colors) : ''}
     `;
 }
 
@@ -165,7 +165,7 @@ async function test(id, access_token, max = 10, type = 'artists', time_range = '
         colors: gen_colors(max),
         //height: (max <= 10) ? (max - 1) * 2 : max - 1, 
         yticks: max,
-        legend: keys,
+        keys,
         style: 'curved',
     });
 }
