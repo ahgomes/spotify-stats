@@ -64,10 +64,7 @@ router.get('/', async (req, res) => {
             type = type || 'artists';
             time_range = time_range || 'short_term';
 
-            let genres = await spotify_data.get_top_genres(access_token, time_range, 50, 0);
-            // let past_artists = objects.entries_to_keys(user['past_tops'][type][time_range], 50, 50);
-            // let artist_genres = await spotify_data.artist_to_genre_rank(access_token, Object.keys(artists), Object.values(past_artists));
-            // console.log(artist_genres)
+            let genres = Object.entries(user['past_tops']['genres']['short_term']).sort()[0][1];
             // TODO: validate query string
             
             res.render('index', { 
@@ -76,18 +73,18 @@ router.get('/', async (req, res) => {
                 username,
                 trackname, 
                 artists: { 
-                    time_range: 'last month', 
+                    time_range: 'short_term', 
                     names: artists.name, 
                     urls: artists.external_urls_spotify 
                 },
                 tracks: { 
-                    time_range: 'last month', 
+                    time_range: 'short_term', 
                     names: track_list.name, 
                     urls: track_list.external_urls_spotify,
                     paired: track_artists 
                 },
                 genres: {
-                    time_range: 'last month',
+                    time_range: 'short_term',
                     names: genres,
                 },
                 form: { max: spotify_data.MAX_QUERY_LENGTH, count, type, time_range},

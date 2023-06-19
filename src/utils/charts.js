@@ -152,10 +152,15 @@ async function test(id, access_token, max = 10, type = 'artists', time_range = '
 
     let min = 1;
     let pos = objects.entries_to_keys(a['past_tops'][type][time_range], max, max);
-    let data = Object.values(pos)
-    let ids = Object.keys(pos);
-    let keys = await spotify_data.get_group(access_token, type, ids);
-    keys = objects.get_from_items(keys, 'name')  //? add urls
+    let data = Object.values(pos);
+    let keys;
+    if (type == 'genres') 
+        keys = Object.keys(pos);
+    else {
+        let ids = Object.keys(pos);
+        keys = await spotify_data.get_group(access_token, type, ids);
+        keys = objects.get_from_items(keys, 'name');
+    }
     data = data.map(x => x.map(y => max - y));
     return plot(data, {
         //title: `top ${max} ${type}`, 

@@ -32,6 +32,15 @@
     if (scroll_point != undefined && scroll_point != '') {
         document.getElementById(scroll_point).scrollIntoView(true);
     }
-
-    let count = {{form.count}};
+</script>
+<script>
+    function swap_time_range(e) {
+        let t = e.value;
+        let k = e.parentElement.parentElement.className.split(' ').find(c => !c.includes('top'));
+        let l = document.querySelector(`.${k} .${t}`);
+        l.classList.add('selected-tr');
+        e.classList.add('selected-tr-btn');
+        let o = document.querySelectorAll(`.${k} > ol:not(.${t})`);
+        // TODO: remove others
+    }
 </script>

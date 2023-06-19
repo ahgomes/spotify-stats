@@ -1,6 +1,6 @@
 const axios = require('axios');
 const querystring = require('querystring');
-const { get_from_items } = require('../src/utils/objects');
+const { get_from_items, rank_genres } = require('../src/utils/objects');
 
 const MAX_QUERY_LENGTH = 50;
 
@@ -71,12 +71,32 @@ async function get_all_top(access_token) {
         top[k] = {};
         for (const r of time_ranges) {
             let top_data = await get_top(access_token, k, r, MAX_QUERY_LENGTH, 0);
-            top[k][r] = get_from_items(top_data.items, 'id');
+            top[k][r] = top_data.items;
         }
+    }
+
+    top['genres'] = {};
+
+    for (let a of Object.entries(top['artists'])) {
+        let g = get_from_items(a[1], 'genres');
+        top['genres'][a[0]] = rank_genres(g);
     }
 
     top.date_updated = new Date();
     return top;
+}
+
+async function get_all_top_ids(access_token) {
+    let all_top = await get_all_top(access_token);
+    
+    const get_ids = (top, type) => {
+        return Object.fromEntries(Object.entries(top[type]).map(e => [e[0], get_from_items(e[1], 'id')]));
+    };
+
+    let types = ['artists', 'tracks'];
+    types.forEach(t => all_top[t] = get_ids(all_top, t));
+
+    return all_top;
 }
 
 async function get_top(access_token, type, time_range, limit, offset) {
@@ -151,27 +171,17 @@ async function get_artist_tracks(access_token, id) {
 }
 
 async function get_top_genres(access_token, time_range, limit, offset) {
-    const artists = await get_top(access_token, 'artists', time_range, limit, offset);
-    const genres = get_from_items(artists.items, 'genres')
-    let o = {};
-    genres.forEach((gg, i) => {
-        gg.forEach(g => {
-            if (o[g] == undefined) o[g] = [0, 0, 0];
-            o[g][0] += i;
-            o[g][1]++;
-            o[g][2] = o[g][0] / o[g][1];
-        })
-    });
-    let ranked = Object.entries(o).sort((a, b) => {
-        return (b[1][1] - a[1][1] == 0) ? (a[1][2] - b[1][2]) : (b[1][1] - a[1][1]);
-    }).map(e => e[0]);  
-    return ranked;  
+    let artists = await get_top(access_token, 'artists', time_range, limit, offset);
+    let genres = get_from_items(artists.items, 'genres');
+        
+    return rank_genres(genres);
 }
 
-async function artist_to_genre_rank(access_token, ids, rankings) {
-    const artists = await get_group(access_token, 'artists', ids);
-    const genres = get_from_items(artists, 'genres');
-    
+async function get_top_artist_genres(access_token, ids) {
+    let artists = await get_group(access_token, 'artists', ids);
+    let genres = get_from_items(artists, 'genres');
+
+    return rank_genres(genres);
 }
 
 module.exports = {
@@ -181,10 +191,12 @@ module.exports = {
     get_curr_user_profile,
     get_curr_user_id,
     get_all_top,
+    get_all_top_ids,
     get_top,
     get_one,
     get_group,
     get_album_tracks,
     get_artist_tracks,
     get_top_genres,
+    get_top_artist_genres,
 };

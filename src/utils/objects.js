@@ -26,8 +26,9 @@ function unique_values(obj) { // metadata life cycle
 
 // for insterting current top to past tops object in user data
 function insert(from, to, opt = {metadata: {}, update: false}) {
-    let date_str = from.date_updated.toISOString();
-    let entries = Object.entries(from).slice(0, 2)
+    let {date_updated , ...rest} = from;
+    let date_str = date_updated.toISOString();
+    let entries = Object.entries(rest);
     entries.forEach(e => {
         let sub_e = Object.entries(e[1]);
         sub_e.forEach(se => {
@@ -72,10 +73,27 @@ function get_from_items(items, selection) {
     return collection;
 };
 
+function rank_genres(genres) {
+    let o = {};
+    genres.forEach((gg, i) => {
+        gg.forEach(g => {
+            if (o[g] == undefined) o[g] = [0, 0, 0];
+            o[g][0] += i;
+            o[g][1]++;
+            o[g][2] = o[g][0] / o[g][1];
+        })
+    });
+    let ranked = Object.entries(o).sort((a, b) => {
+        return (b[1][1] - a[1][1] == 0) ? (a[1][2] - b[1][2]) : (b[1][1] - a[1][1]);
+    }).map(e => e[0]);
+    return ranked;
+}
+
 module.exports = {
     entries_to_keys, 
     unique_values,
     insert,
     sort_by_letter,
     get_from_items,
+    rank_genres,
 };

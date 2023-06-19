@@ -1,10 +1,12 @@
-<section class="top-list {{type}}">
+<section class="top-section {{type}}">
     {{#with ctx}}
-    <div>
+    <div class="top-head">
         <h2>top {{../type}}</h2>
-        <span>{{time_range}}</span>
+        <button value="short_term" onclick="swap_time_range(this)">last month</button>
+        <button value="medium_term" onclick="swap_time_range(this)">last 6 month</button>
+        <button value="long_term" onclick="swap_time_range(this)">all time</button>
     </div>
-    <ol>
+    <ol class="top-list {{time_range}}">
         {{#each names}} 
             <li>
                 {{#if ../urls}}<a href="{{lookup ../urls @index}}" target="_blank">{{/if}}
