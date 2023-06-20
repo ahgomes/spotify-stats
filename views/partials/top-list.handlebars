@@ -1,9 +1,9 @@
 <section class="top-section {{type}}">
     <div class="top-head">
         <h2>top {{type}}</h2>
-        <button class="selected-tr-btn" value="short_term" onclick="swap_time_range(this)">last month</button>
-        <button value="medium_term" onclick="swap_time_range(this)">last 6 month</button>
-        <button value="long_term" onclick="swap_time_range(this)">all time</button>
+        <button class="selected-tr-btn" value="short_term" onclick="c(this)">last month</button>
+        <button value="medium_term" onclick="c(this)">last 6 month</button>
+        <button value="long_term" onclick="c(this)">all time</button>
     </div>
     {{#each top}}
     <ol class="top-list {{time_range}} {{#if @index}}{{else}}selected-tr{{/if}}">

@@ -19,9 +19,7 @@ const color = (tkn, clr, i, key) => {
     if (!clr) 
         return tkn;
 
-    const hover = `let q=document.querySelectorAll('.cl${i}');q.forEach(l=>l.classList.add('selected-cl'));q[Math.trunc(q.length / 2)].classList.add('last-cl')`;
-    const unhover = hover.replaceAll('add', 'remove');
-    return `<span class="chart-line cl${i}" style="color:${clr}" onmouseover="${hover}" onmouseout="${unhover}" data-key="${key}">${tkn}</span>`;
+    return `<span class="chart-line cl${i}" style="color:${clr}" onmouseover="h(${i})" onmouseout="u(${i})" data-key="${key}">${tkn}</span>`;
 };
 
 /**  
@@ -83,7 +81,8 @@ function plot(data, layout = {}) {
     })
 
     let offset = yticks > 0 ? 3 : 1; // graph start offset
-    let plane = [...Array(rows + 1)].map(_ => Array(width + offset - 1).fill(TOKENS.nbsp));
+    let yaxis = [...Array(rows + 1)].map(_ => Array(offset).fill(TOKENS.nbsp))
+    let plane = [...Array(rows + 1)].map(_ => Array(width).fill(TOKENS.nbsp));
 
     for (let i = 0, y = rmin; y <= rmax; ++y) { // yaxis + labels
         let label, token;
@@ -94,8 +93,8 @@ function plot(data, layout = {}) {
             label = format();
             token = TOKENS.vert;
         }
-        plane[y - rmin][Math.max(offset - label.length, 0)] = label;
-        plane[y - rmin][offset - 1] = token;
+        yaxis[y - rmin][Math.max(offset - label.length + 1, 0)] = label;
+        yaxis[y - rmin][offset] = token;
     }
 
     // check if outside plotting region
@@ -109,21 +108,21 @@ function plot(data, layout = {}) {
             let y1 = Math.round(data[j][x + 1] * ratio) - rmin;
             if (y0 == y1) {
                 if (outside(rows - y0)) continue;
-                plane[rows - y0][x + offset] = color(TOKENS.hor, curr_clr, j, keys[j]);
+                plane[rows - y0][x] = color(TOKENS.hor, curr_clr, j, keys[j]);
             } else {
                 if (!outside(rows - y1)) {
-                    plane[rows - y1][x + offset] = color(
+                    plane[rows - y1][x] = color(
                         (y0 > y1) ? TOKENS[style][6] : TOKENS[style][0], curr_clr, j, keys[j]);
                 }
                 if (!outside(rows - y0)) {
-                    plane[rows - y0][x + offset] = color(
+                    plane[rows - y0][x] = color(
                         (y0 > y1) ? TOKENS[style][2] : TOKENS[style][8], curr_clr, j, keys[j]);
                 }
                 let from = Math.min(y0, y1);
                 let to = Math.max(y0, y1);
                 for (let y = from + 1; y < to; y++) {
                     if (outside(rows - y)) continue;
-                    plane[rows - y][x + offset] = color(TOKENS.vert, curr_clr, j, keys[j]);
+                    plane[rows - y][x] = color(TOKENS.vert, curr_clr, j, keys[j]);
                 }
             }
         }
@@ -137,8 +136,9 @@ function plot(data, layout = {}) {
     }
 
     return `
+        <div class="yaxis">${yaxis.map(r => r.join('')).join('\n')}</div>
         <div class="plane">${plane.map(r => r.join('')).join('\n')}</div>
-        ${(has_legend) ? legend(keys, colors) : ''}
+        ${(has_legend) ? legend(keys, colors) : '<div class="empty-legend"></div>'}
     `;
 }
 

@@ -226,26 +226,40 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 section.chartarea {
+    display: flex;
+    position: relative;
     margin: var(--std-margin) 0;
     cursor: default;
 }
 
-.plane {
+.yaxis, .plane {
     display: inline-block;
-    position: relative;
     white-space: pre-line;
+}
+
+.yaxis {
+    margin: var(--std-margin) 0;
+}
+
+.plane {
+    margin: var(--std-margin) var(--std-margin) var(--std-margin) 0;
+    overflow: scroll;
+}
+
+.empty-legend {
+    display: block;
+    position: absolute;
+    top: var(--top);
+    left: var(--right);
     margin: var(--std-margin);
+    padding: 5px;
+    background: var(--std-bkgd);
+    color: #fff;
+    border-radius: 2px;
+    white-space: nowrap;
 }
 
 .selected-cl {
     color: #fff !important;
     text-shadow: #fc0 1px 0 10px;
-}
-
-.last-cl::after {
-    content: attr(data-key);
-    position: absolute;
-    left: 100%;
-    white-space: nowrap;
-    margin: 0 var(--std-margin);
 }

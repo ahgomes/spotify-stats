@@ -16,7 +16,6 @@ const express = require('express');
 const router = express.Router();
 const querystring = require('querystring');
 const axios = require('axios');
-const { create_user } = require('../data/user');
 
 require("dotenv").config();
 
@@ -37,7 +36,7 @@ router.get('/', async (req, res) => {
             if (!req.session.user)
                 req.session.user = spotify_user.id;
             let username = req.session.user;
-            let user = await user_data.get_user(username+'1');
+            let user = await user_data.get_user(username);
 
             const create_trackname = async  _ => {
                 let past_tracks = objects.unique_values(user.past_tops.tracks.short_term);

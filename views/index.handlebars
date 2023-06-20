@@ -27,22 +27,6 @@
         </section>
     </section>
 </section>
-<script> 
-    let scroll_point = "{{scroll_to}}"; 
-    if (scroll_point != undefined && scroll_point != '') {
-        document.getElementById(scroll_point).scrollIntoView(true);
-    }
-</script>
 <script>
-    function swap_time_range(e) {
-        let t = e.value;
-        let k = e.parentElement.parentElement.className.split(' ').find(c => !c.includes('top'));
-        let o = document.querySelectorAll(`.${k} > .top-list:not(.${t})`);
-        let f = document.querySelectorAll(`.${k} > .top-head button`);
-        o.forEach(p => p.classList.remove('selected-tr'));
-        f.forEach(g => g.classList.remove('selected-tr-btn'));
-        e.classList.add('selected-tr-btn');
-        let l = document.querySelector(`.${k} .${t}`);
-        l.classList.add('selected-tr');
-    }
+    let d=document,q=z=>d.querySelector(z),a=z=>d.querySelectorAll(z),s="{{scroll_to}}",c=e=>{let t=e.value,k=e.parentElement.parentElement.classList.item(1),o=a(`.${k} > .top-list:not(.${t})`),f=a(`.${k} > .top-head button`);o.forEach(p=>p.classList.remove('selected-tr'));f.forEach(g=>g.classList.remove('selected-tr-btn'));e.classList.add('selected-tr-btn');d.querySelector(`.${k} .${t}`).classList.add('selected-tr')},h=i=>{let v=a(`.cl${i}`),e=v[Math.floor(v.length/2)],l=q('.empty-legend');v.forEach(u=>u.classList.add('selected-cl'));if(l){let p=e.parentElement.offsetLeft+ e.parentElement.offsetWidth-50;l.innerHTML=e.dataset.key;Object.entries({'--top':e.offsetTop+'px','--right':(p<e.offsetLeft?p:e.offsetLeft)+'px','--key':e.dataset.key}).forEach(x=>l.style.setProperty(x[0],x[1]));} },u=i=>{a(`.cl${i}`).forEach(l=>l.classList.remove('selected-cl'));q('.empty-legend').innerHTML=''};if(s!='')d.getElementById(s).scrollIntoView(true);
 </script>
