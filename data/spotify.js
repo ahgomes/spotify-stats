@@ -86,8 +86,9 @@ async function get_all_top(access_token) {
     return top;
 }
 
-async function get_all_top_ids(access_token) {
-    let all_top = await get_all_top(access_token);
+async function get_all_top_ids(access_token, all_top) {
+    if (!all_top)
+        all_top = await get_all_top(access_token);
     
     const get_ids = (top, type) => {
         return Object.fromEntries(Object.entries(top[type]).map(e => [e[0], get_from_items(e[1], 'id')]));

@@ -28,6 +28,19 @@ body {
     color: var(--std-color);
 }
 
+a {
+    color: var(--std-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+button {
+    cursor: pointer;
+}
+
 section {
     margin: var(--std-margin);
     padding: 10px;
@@ -135,7 +148,7 @@ section.curr-lists div {
 
 .top-section.artists, 
 .top-section.genres {
-    flex: 0.5;
+    flex: 1;
 }
 
 .top-section.tracks {
@@ -144,25 +157,29 @@ section.curr-lists div {
 
 .top-section .top-head button {
     background: var(--std-bkgd);
-    color: var(--std-color);
+    color: #666;
+    margin: var(--std-margin);
     border: none;
     font-size: 12px;
 }
 
-.top-section ol {
+.top-section .top-head button.selected-tr-btn {
+    color: #0f0;
+}
+
+.top-section .top-list {
+    display: none;
     margin: 0;
     line-height: 16.5px;
     height: 165px;
     overflow: scroll;
 }
 
-.top-section ol li a {
-    color: var(--std-color);
-    text-decoration: none;
-
+.top-section .top-list.selected-tr {
+    display: block;
 }
 
-.top-section ol li a span {
+.top-section .top-list li a span {
     color: #888;
     font-weight: 100;
     font-style: italic;

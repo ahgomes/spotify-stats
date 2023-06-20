@@ -14,9 +14,9 @@
     <section class="curr-lists">
         <h2>your current tops</h2>
         <div>
-            {{> top-list type='artists' ctx=artists }}
-            {{> top-list type='tracks' ctx=tracks }}
-            {{> top-list type='genres' ctx=genres }}
+            {{> top-list type='artists' top=artists }}
+            {{> top-list type='tracks' top=tracks }}
+            {{> top-list type='genres' top=genres }}
         </div>
     </section>
     <section id="#chart">
@@ -37,10 +37,12 @@
     function swap_time_range(e) {
         let t = e.value;
         let k = e.parentElement.parentElement.className.split(' ').find(c => !c.includes('top'));
+        let o = document.querySelectorAll(`.${k} > .top-list:not(.${t})`);
+        let f = document.querySelectorAll(`.${k} > .top-head button`);
+        o.forEach(p => p.classList.remove('selected-tr'));
+        f.forEach(g => g.classList.remove('selected-tr-btn'));
+        e.classList.add('selected-tr-btn');
         let l = document.querySelector(`.${k} .${t}`);
         l.classList.add('selected-tr');
-        e.classList.add('selected-tr-btn');
-        let o = document.querySelectorAll(`.${k} > ol:not(.${t})`);
-        // TODO: remove others
     }
 </script>

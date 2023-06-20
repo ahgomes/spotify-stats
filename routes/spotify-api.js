@@ -16,6 +16,7 @@ const express = require('express');
 const router = express.Router();
 const querystring = require('querystring');
 const axios = require('axios');
+const { create_user } = require('../data/user');
 
 require("dotenv").config();
 
@@ -36,26 +37,20 @@ router.get('/', async (req, res) => {
             if (!req.session.user)
                 req.session.user = spotify_user.id;
             let username = req.session.user;
-            let user = await user_data.get_user(username);
-            
-            let artists = await spotify_data.get_top(access_token, 'artists', 'short_term', 50, 0);
-            let tracks = await spotify_data.get_top(access_token, 'tracks', 'short_term', 50, 0);
-            artists = objects.get_from_items(artists.items, ['name', 'external_urls.spotify']);
-            let track_list = objects.get_from_items(tracks.items, ['name', 'external_urls.spotify']);
-            let track_artists = objects.get_from_items(tracks.items, 'artists');
-            track_artists = track_artists.map(ta => objects.get_from_items(ta, 'name').join(', '))
+            let user = await user_data.get_user(username+'1');
 
-            let past_tracks = objects.unique_values(user.past_tops.tracks.short_term);
-            past_tracks = await spotify_data.get_group(access_token, 'tracks', Array.from(past_tracks));
-            past_tracks = objects.get_from_items(past_tracks, 'name')
-            let dict = objects.sort_by_letter(new Set(past_tracks));
-            // let artist_tracks = await spotify_data.get_artist_tracks(access_token, user.top.artists.long_term[0]);
-            // artist_tracks = objects.get_from_items(artist_tracks, 'name');
-            // let dict = objects.sort_by_letter(new Set(artist_tracks));
-            const span = (str, found) => {
-                return `<span${(!found) ? ` class="tl-letter"` : ''}>${str}</span>`;
+            const create_trackname = async  _ => {
+                let past_tracks = objects.unique_values(user.past_tops.tracks.short_term);
+                past_tracks = await spotify_data.get_group(access_token, 'tracks', Array.from(past_tracks));
+                past_tracks = objects.get_from_items(past_tracks, 'name')
+                let dict = objects.sort_by_letter(new Set(past_tracks));
+                const span = (str, found) => {
+                    return `<span${(!found) ? ` class="tl-letter"` : ''}>${str}</span>`;
+                };
+                return strings.string_to_tracklist(username, dict, span).join('');
             };
-            let trackname = strings.string_to_tracklist(username, dict, span).join('');
+            
+            let trackname = await create_trackname();
 
             let { count, type, time_range } = req.query;
             let chart_max = (count != undefined && count != NaN) ? Number(count) : undefined;
@@ -64,7 +59,7 @@ router.get('/', async (req, res) => {
             type = type || 'artists';
             time_range = time_range || 'short_term';
 
-            let genres = Object.entries(user['past_tops']['genres']['short_term']).sort()[0][1];
+            
             // TODO: validate query string
             
             res.render('index', { 
@@ -72,21 +67,9 @@ router.get('/', async (req, res) => {
                 display_name: spotify_user.display_name,
                 username,
                 trackname, 
-                artists: { 
-                    time_range: 'short_term', 
-                    names: artists.name, 
-                    urls: artists.external_urls_spotify 
-                },
-                tracks: { 
-                    time_range: 'short_term', 
-                    names: track_list.name, 
-                    urls: track_list.external_urls_spotify,
-                    paired: track_artists 
-                },
-                genres: {
-                    time_range: 'short_term',
-                    names: genres,
-                },
+                artists: objects.format_top(user.top, 'artists'),
+                tracks: objects.format_top(user.top, 'tracks'),
+                genres: objects.format_top(user.top, 'genres'),
                 form: { max: spotify_data.MAX_QUERY_LENGTH, count, type, time_range},
                 chart: await charts.test(username, access_token, chart_max, type, time_range),
                 scroll_to: (scroll_to_chart) ? '#chart' : undefined,
@@ -138,7 +121,7 @@ router.post('/refresh_chart', async (req, res) => {
 router.get('/update_top', async (req, res) => {
     if (!req.session.access_token || !req.session.user) res.redirect('/login');
     else {
-        await user_data.update_top(req.session.user, req.session.access_token);
+        await user_data.update_user_top(req.session.user, req.session.access_token);
         res.redirect('/');
     }
 });

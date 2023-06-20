@@ -22,11 +22,12 @@ async function create_user(id, access_token) {
     if (user != null)
         throw new Error('A user with that username already exists');
 
-    let curr_top = await spotify.get_all_top_ids(access_token);
+    let curr_top = await spotify.get_all_top(access_token);
+    let top_ids = await spotify.get_all_top_ids(access_token, Object.assign({}, curr_top));
     let new_user = {
         username,
         top: curr_top,
-        past_tops: objects.insert(curr_top, {}, { metadata: { max_index: spotify.MAX_QUERY_LENGTH } }),
+        past_tops: objects.insert(top_ids, {}, { metadata: { max_index: spotify.MAX_QUERY_LENGTH } }),
     };
 
     const insert_user = await user_collection.insertOne(new_user);
@@ -44,14 +45,15 @@ async function get_user(id) {
     return user;
 }
 
-async function update_top(id, access_token) {
+async function update_user_top(id, access_token) {
     const { username, user, user_collection } = await user_set(id);
 
     if (!user)
         throw new Error(`Could not find user with id '${username}'.`);
 
-    let new_top = await spotify.get_all_top_ids(access_token);
-    let new_pt = objects.insert(new_top, user.past_tops, { update: true });
+    let new_top = await spotify.get_all_top(access_token);
+    let new_top_ids = await spotify.get_all_top_ids(access_token, Object.assign({}, new_top))
+    let new_pt = objects.insert(new_top_ids, user.past_tops, { update: true });
 
     const insert_user = await user_collection.updateOne(
         { username },
@@ -79,6 +81,6 @@ async function remove_user(id) {
 module.exports = {
     create_user,
     get_user,
-    update_top,
+    update_user_top,
     remove_user,
 }

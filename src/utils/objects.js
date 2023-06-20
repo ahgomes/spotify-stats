@@ -89,6 +89,23 @@ function rank_genres(genres) {
     return ranked;
 }
 
+function format_top(o, t) {
+    return Object.entries(o[t]).map(e => {
+        let res = { time_range: e[0] };
+        if (t == 'genres')
+            return { ...res, names: e[1] };
+
+        let { name: names, external_urls_spotify: urls } = get_from_items(e[1], ['name', 'external_urls.spotify']);
+        res = { ...res, names, urls };
+
+        if (t == 'tracks') {
+            res.paired = get_from_items(e[1], 'artists').map(a => get_from_items(a, 'name').join(', '));
+        }
+
+        return res;
+    });
+};
+
 module.exports = {
     entries_to_keys, 
     unique_values,
@@ -96,4 +113,5 @@ module.exports = {
     sort_by_letter,
     get_from_items,
     rank_genres,
+    format_top,
 };
