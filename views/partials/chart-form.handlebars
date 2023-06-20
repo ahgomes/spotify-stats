@@ -1,14 +1,14 @@
 {{#with ctx}}
-<form id="chart-form" action="/refresh_chart/" method="POST">
+<form id="chart-form">
     top <input type="number" name="count" id="count" value="{{count}}" placeholder="#" min="1" max="{{max}}"/>
-    <select name="type" id="type" onchange='this.form.submit()'>
+    <select name="type" id="type" onchange='this.form.onsubmit(event)'>
         {{#select type}}
         <option value="artists">artists</option>
         <option value="tracks">tracks</option>
         <option value="genres">genres</option>
         {{/select}}
     </select>
-    <select name="time_range" id="time-range" onchange='this.form.submit()'>
+    <select name="time_range" id="time-range" onchange='this.form.onsubmit(event)'>
         {{#select time_range}}
         <option value="short_term">last month</option>
         <option value="medium_term">last 6 months</option>

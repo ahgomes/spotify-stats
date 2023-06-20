@@ -78,9 +78,23 @@ async function remove_user(id) {
     return { user_removed: true };
 };
 
+async function compile_user_chart_data(user, access_token, options) {
+    let { count, type, time_range } = options;
+    let pos = objects.entries_to_keys(user['past_tops'][type][time_range], count, count);
+    let keys = Object.keys(pos), values = Object.values(pos);
+    
+    if (type != 'genres') {
+        let d = await spotify.get_group(access_token, type, keys);
+        keys = objects.get_from_items(d, 'name');
+    }
+
+    return Object.fromEntries(keys.map((_, i) => [keys[i], values[i]]))
+}
+
 module.exports = {
     create_user,
     get_user,
     update_user_top,
     remove_user,
+    compile_user_chart_data,
 }

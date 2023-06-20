@@ -35,9 +35,11 @@ router.get('/', async (req, res) => {
             let spotify_user = await spotify_data.get_curr_user_profile(access_token);
             if (!req.session.user)
                 req.session.user = spotify_user.id;
+            
             let username = req.session.user;
             let user = await user_data.get_user(username);
 
+            /*--- BUILD USERNAME TRACKLIST ---*/
             const create_trackname = async  _ => {
                 let past_tracks = objects.unique_values(user.past_tops.tracks.short_term);
                 past_tracks = await spotify_data.get_group(access_token, 'tracks', Array.from(past_tracks));
@@ -51,16 +53,12 @@ router.get('/', async (req, res) => {
             
             let trackname = await create_trackname();
 
-            let { count, type, time_range } = req.query;
-            let chart_max = (count != undefined && count != NaN) ? Number(count) : undefined;
-            let scroll_to_chart = count != undefined;
-            count = count || 10;
-            type = type || 'artists';
-            time_range = time_range || 'short_term';
-
+            /*--- BUILD CHART ---*/
+            let options = { count: 10, type: 'artists', time_range: 'short_term' }
+            let data = await user_data.compile_user_chart_data(user, access_token, options);
+            let chart = charts.build_user_chart(data, options.count);
             
-            // TODO: validate query string
-            
+            /*--- RENDER HANDLEBARS ---*/
             res.render('index', { 
                 title: 'Spotify Stats',
                 display_name: spotify_user.display_name,
@@ -69,9 +67,8 @@ router.get('/', async (req, res) => {
                 artists: objects.format_top(user.top, 'artists'),
                 tracks: objects.format_top(user.top, 'tracks'),
                 genres: objects.format_top(user.top, 'genres'),
-                form: { max: spotify_data.MAX_QUERY_LENGTH, count, type, time_range},
-                chart: await charts.test(username, access_token, chart_max, type, time_range),
-                scroll_to: (scroll_to_chart) ? '#chart' : undefined,
+                form: { max: spotify_data.MAX_QUERY_LENGTH, ...options },
+                chart,
             });
         } catch (e) {
             res.send({ error: e });
@@ -112,9 +109,29 @@ router.get('/callback', async (req, res) => {
 });
 
 router.post('/refresh_chart', async (req, res) => {
+    let access_token = req.session.access_token, 
+        username = req.session.user;
+    if (!access_token || !username) res.redirect('/login');
+
     let { count, type, time_range } = req.body;
-    // TODO: validate input
-    res.redirect(`/?count=${count}&type=${type}&time_range=${time_range}`);
+    
+    let error = false;
+
+    // TODO: validation
+
+    if (error) {
+        res.json({ error: { count, type, time_range } });
+    }
+
+    console.log(username)
+
+    let user = await user_data.get_user(username);
+    let data = await user_data.compile_user_chart_data(user, access_token, {
+        count, type, time_range
+    });
+    let chart = charts.build_user_chart(data, count);
+
+    res.json({chart});
 });
 
 router.get('/update_top', async (req, res) => {

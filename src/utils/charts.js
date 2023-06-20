@@ -4,7 +4,6 @@
  */
 
 const objects = require('./objects');
-const { spotify_data, user_data } = require('../../data/');
 
 const TOKENS = {
     hor: '─',
@@ -58,7 +57,7 @@ function plot(data, layout = {}) {
     let height = layout.height ?? range;
     let width = /*layout.width ??*/ Math.max(...data.map(x => x.length));
     let colors = layout.colors ?? [];
-    let style = layout.style ?? 'square';
+    let style = layout.style ?? 'curved';
     let title = layout.title ?? '';
     let has_legend = layout.has_legend ?? false;
     let keys = layout.keys || Array(max).fill('');
@@ -66,7 +65,7 @@ function plot(data, layout = {}) {
     let ratio = range != 0 ? height / range : 1;
     let rmin = Math.round(min * ratio);
     let rmax = Math.round(max * ratio);
-    let rows = (rmax - rmin) || 1;
+    let rows = (rmax - rmin);
 
     
     let yticks = layout.yticks ?? rows;
@@ -142,40 +141,33 @@ function plot(data, layout = {}) {
     `;
 }
 
-async function test(id, access_token, max = 10, type = 'artists', time_range = 'short_term') {
-    let a = await user_data.get_user(id);
+function build_user_chart(data, max) {
+    let min = 1;
 
-    let format = (n, max, min) => {
+    let keys = Object.keys(data);
+    let values = Object.values(data);
+    values = values.map(x => x.map(y => max - y));
+
+    let clr_count = Object.keys(objects.within_index(data, min - 1, max)).length;
+
+    let format = (n) => {
         return (n == null) ? TOKENS.nbsp.repeat(3)
             : (TOKENS.nbsp.repeat(3) + (max - Math.trunc(n) + min)).slice(-3);
     };
 
-    let min = 1;
-    let pos = objects.entries_to_keys(a['past_tops'][type][time_range], max, max);
-    let data = Object.values(pos);
-    let keys;
-    if (type == 'genres') 
-        keys = Object.keys(pos);
-    else {
-        let ids = Object.keys(pos);
-        keys = await spotify_data.get_group(access_token, type, ids);
-        keys = objects.get_from_items(keys, 'name');
-    }
-    data = data.map(x => x.map(y => max - y));
-    return plot(data, {
-        //title: `top ${max} ${type}`, 
-        format: (n) => format(n, min, max),
-        min: min,
-        max: max,
-        colors: gen_colors(max),
-        //height: (max <= 10) ? (max - 1) * 2 : max - 1, 
+    return plot(values, {
+        format,
+        min,
+        max,
+        colors: gen_colors(clr_count),
         yticks: max,
         keys,
-        style: 'curved',
     });
 }
 
 module.exports = {
+    TOKENS,
     plot,
-    test,
+    gen_colors,
+    build_user_chart,
 };

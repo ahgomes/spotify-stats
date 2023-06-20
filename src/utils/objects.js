@@ -106,6 +106,22 @@ function format_top(o, t) {
     });
 };
 
+// gets entries within a certain rank/index
+function within_index(obj, start, end) {
+    const btwn = (arr) => {
+        return arr.some(x => x >= start && x < end);
+    };
+    return filter(obj, btwn);
+}
+
+// from 
+// https://stackoverflow.com/questions/5072136/javascript-filter-for-objects
+function filter(obj, predicate) {
+    return Object.assign(...Object.keys(obj)
+        .filter(key => predicate(obj[key]))
+        .map(key => ({ [key]: obj[key] })));
+}
+
 module.exports = {
     entries_to_keys, 
     unique_values,
@@ -114,4 +130,5 @@ module.exports = {
     get_from_items,
     rank_genres,
     format_top,
+    within_index,
 };
