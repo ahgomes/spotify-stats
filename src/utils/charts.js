@@ -144,7 +144,7 @@ function plot(data, layout = {}) {
 function build_user_chart(data, max) {
     let min = 1;
 
-    let keys = Object.keys(data);
+    let keys = Object.keys(data).map(k => k.split(/%(.*)/)[1]);
     let values = Object.values(data);
     values = values.map(x => x.map(y => max - y));
 

@@ -16,7 +16,8 @@ const user_set = async (id) => {
     return { username, user, user_collection };
 };
 
-async function create_user(id, access_token) {
+async function create_user(spotify_user, access_token) {
+    let { id, display_name } = spotify_user;
     const { username, user, user_collection } = await user_set(id);
 
     if (user != null)
@@ -26,6 +27,7 @@ async function create_user(id, access_token) {
     let top_ids = await spotify.get_all_top_ids(access_token, Object.assign({}, curr_top));
     let new_user = {
         username,
+        display_name,
         top: curr_top,
         past_tops: objects.insert(top_ids, {}, { metadata: { max_index: spotify.MAX_QUERY_LENGTH } }),
     };
@@ -45,7 +47,8 @@ async function get_user(id) {
     return user;
 }
 
-async function update_user_top(id, access_token) {
+async function update_user_top(spotify_user, access_token) {
+    let { id, display_name } = spotify_user;
     const { username, user, user_collection } = await user_set(id);
 
     if (!user)
@@ -57,7 +60,7 @@ async function update_user_top(id, access_token) {
 
     const insert_user = await user_collection.updateOne(
         { username },
-        { $set: { top: new_top, past_tops: new_pt }}
+        { $set: { display_name, top: new_top, past_tops: new_pt }}
     );
 
     if (insert_user.modifiedCount == 0)
@@ -85,7 +88,7 @@ async function compile_user_chart_data(user, access_token, options) {
     
     if (type != 'genres') {
         let d = await spotify.get_group(access_token, type, keys);
-        keys = objects.get_from_items(d, 'name');
+        keys = d.map(k => k.id + '%' + k.name);
     }
 
     return Object.fromEntries(keys.map((_, i) => [keys[i], values[i]]))

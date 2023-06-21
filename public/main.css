@@ -244,13 +244,12 @@ section.chartarea {
 .plane {
     margin: var(--std-margin) var(--std-margin) var(--std-margin) 0;
     overflow: scroll;
+    width: 100%;
 }
 
 .empty-legend {
     display: block;
     position: absolute;
-    top: var(--top);
-    left: var(--left);
     margin: var(--std-margin);
     padding: 5px;
     background: var(--std-bkgd);
@@ -258,6 +257,7 @@ section.chartarea {
     border-radius: 2px;
     white-space: nowrap;
     pointer-events: none;
+    opacity: 0;
 }
 
 .selected-cl {

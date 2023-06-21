@@ -32,9 +32,8 @@ router.get('/', async (req, res) => {
     if (!access_token) res.redirect('/login');
     else { 
         try {
-            let spotify_user = await spotify_data.get_curr_user_profile(access_token);
             if (!req.session.user)
-                req.session.user = spotify_user.id;
+                req.session.user = await spotify_data.get_curr_user_id(access_token);
             
             let username = req.session.user;
             let user = await user_data.get_user(username);
@@ -61,7 +60,7 @@ router.get('/', async (req, res) => {
             /*--- RENDER HANDLEBARS ---*/
             res.render('index', { 
                 title: 'Spotify Stats',
-                display_name: spotify_user.display_name,
+                display_name: user.display_name,
                 username,
                 trackname, 
                 artists: objects.format_top(user.top, 'artists'),
@@ -118,27 +117,39 @@ router.post('/refresh_chart', async (req, res) => {
     let error = false;
 
     // TODO: validation
+    count = Number(count)
 
     if (error) {
         res.json({ error: { count, type, time_range } });
     }
 
-    console.log(username)
+    try {
+        let user = await user_data.get_user(username);
+        let data = await user_data.compile_user_chart_data(user, access_token, {
+            count, type, time_range
+        });
+        console.log(data)
+        let chart = charts.build_user_chart(data, count);
 
-    let user = await user_data.get_user(username);
-    let data = await user_data.compile_user_chart_data(user, access_token, {
-        count, type, time_range
-    });
-    let chart = charts.build_user_chart(data, count);
-
-    res.json({chart});
+        res.json({ chart });
+    } catch(e) {
+        res.json({ error: e });
+    }
 });
 
 router.get('/update_top', async (req, res) => {
-    if (!req.session.access_token || !req.session.user) res.redirect('/login');
+    let access_token = req.session.access_token;
+    if (!access_token || !req.session.user) 
+        res.json({ error: { logged_in: false }});
     else {
-        await user_data.update_user_top(req.session.user, req.session.access_token);
-        res.redirect('/');
+        let user = await spotify_data.get_curr_user_profile(access_token);
+        try {
+            await user_data.update_user_top(user, access_token);
+        } catch (e) {
+            res.json({ error: e });
+        }
+        
+        res.json({ user_updated : true });
     }
 });
 
