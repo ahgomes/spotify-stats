@@ -26,6 +26,9 @@
 body {
     background: var(--std-bkgd);
     color: var(--std-color);
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 a {
@@ -47,15 +50,25 @@ section {
     border: 2px solid #fff;
 }
 
+section.page {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - var(--std-margin) * 2);
+    box-sizing: border-box;
+    overflow: scroll;
+}
+
 .marquee {
     position: relative;
-    overflow: hidden;
+    overflow: clip;
+}
+
+.marquee:last-of-type {
+    margin-top: auto;
 }
 
 .marquee-text {
-    width: fit-content;
     display: flex;
-    position: relative;
     white-space: nowrap;
     transform: translateX(0);
     animation: marquee 20s linear infinite;
@@ -71,30 +84,30 @@ section {
     }
 }
 
-#trackname {
+.trackname {
     color: #888;
     font-weight: 100;
 }
 
-#trackname span {
+.trackname span {
     display: inline-block;
     color: #0f0;
     margin: 0 5px;
 }
 
-#trackname span::first-letter {
+.trackname span::first-letter {
     color: #ff0;
 }
 
-#trackname span::after {
+.trackname span::after {
     content: ",";
 }
 
-#trackname span:last-of-type::after {
+.trackname span:last-of-type::after {
     content: ' |';
 }
 
-#trackname span.tl-letter {
+.trackname span.tl-letter {
     text-transform: uppercase;
     text-decoration: line-through;
     text-decoration-thickness: 1.5px;
@@ -102,11 +115,11 @@ section {
     color: #666;
 }
 
-#trackname span.tl-letter::first-letter {
+.trackname span.tl-letter::first-letter {
     color: #666;
 }
 
-#trackname button {
+.trackname button {
     position: absolute;
     top: 0;
     background: var(--std-bkgd);
@@ -116,11 +129,11 @@ section {
     z-index: 1;
 }
 
-#trackname button:first-of-type {
+.trackname button:first-of-type {
     left: 0;
 }
 
-#trackname button:last-of-type {
+.trackname button:last-of-type {
     right: 0;
 }
 
@@ -128,6 +141,7 @@ section {
     display: block;
     position: relative;
     margin: var(--std-margin);
+    margin-bottom: 0;
     padding: 10px 0;
 }
 
@@ -150,6 +164,12 @@ section {
 
 section.curr-lists div {
     display: flex;
+    flex-wrap: wrap;
+}
+
+.top-section {
+    flex: 1;
+    min-width: 400px;
 }
 
 .top-section div * {
@@ -162,15 +182,6 @@ section.curr-lists div {
     font-weight: 100;
     font-style: italic;
     margin-left: 5px;
-}
-
-.top-section.artists, 
-.top-section.genres {
-    flex: 1;
-}
-
-.top-section.tracks {
-    flex: 1;
 }
 
 .top-section .top-head button {

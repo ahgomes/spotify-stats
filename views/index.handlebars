@@ -1,12 +1,5 @@
-<section>
-    <div id="trackname" class="marquee">
-        <button title="save playlist" onclick="save_playlist()">+</button>
-        <div class="marquee-text">
-            <div>{{{ trackname }}}</div>
-            <div>{{{ trackname }}}</div>
-        </div>
-        <button title="save playlist" onclick="save_playlist()">+</button>
-    </div>
+<section class="page" onresize="r(window.innerWidth)">
+    {{> trackname trackname=trackname }}
     <div class="heading">
         <h1>{{display_name}}</h1><span>:{{username}}</span>
         <a href="https://open.spotify.com/" target="_blank">
@@ -28,8 +21,9 @@
             {{{chart}}}
         </section>
     </section>
+    {{> trackname trackname=trackname }}
 </section>
 <script>
-    let d=document,q=z=>d.querySelector(z),a=z=>d.querySelectorAll(z),l=z=>z.classList,w='selected-tr-btn',m='selected-tr',c=e=>{let t=e.value,k=l(e.parentNode.parentNode).item(1),o=a(`.${k}>.top-list:not(.${t})`),f=a(`.${k} .tab`);o.forEach(p=>l(p).remove(m));f.forEach(g=>l(g).remove(w));l(e).add(w);l(q(`.${k} .${t}`)).add(m)},z='selected-cl',y='.empty-legend',h=i=>{let v=a(`.cl${i}`),e=v[Math.floor(v.length/2)],x=q(y);v.forEach(u=>l(u).add(z));if(x){x.innerHTML=e.dataset.key;let b=z=>z.offsetLeft,r=e.parentNode,p=b(r)+r.offsetWidth-x.offsetWidth;x.style.cssText=`top:${e.offsetTop}px;left:${p<b(e)?p:b(e)}px;opacity:1`} },u=i=>{a(`.cl${i}`).forEach(j=>l(j).remove(z));x=q(y);x.style.opacity=x.innerHTML=''}
+    let d=document,q=z=>d.querySelector(z),a=z=>d.querySelectorAll(z),l=z=>z.classList,n=(z,x)=>z.forEach(x),s=z=>Math.ceil(z),w='selected-tr-btn',m='selected-tr',c=e=>{let t=e.value,k=l(e.parentNode.parentNode).item(1),o=a(`.${k}>.top-list:not(.${t})`),f=a(`.${k} .tab`);n(o,p=>l(p).remove(m));n(f,g=>l(g).remove(w));l(e).add(w);l(q(`.${k} .${t}`)).add(m)},z='selected-cl',y='.empty-legend',h=i=>{let v=a(`.cl${i}`),e=v[s(v.length/2)],x=q(y);n(v,u=>l(u).add(z));if(x){x.innerHTML=e.dataset.key;let b=z=>z.offsetLeft,r=e.parentNode,p=b(r)+r.offsetWidth-x.offsetWidth;x.style.cssText=`top:${e.offsetTop}px;left:${p<b(e)?p:b(e)}px;opacity:1`} },u=i=>{n(a(`.cl${i}`),j=>l(j).remove(z));x=q(y);x.style.opacity=x.innerHTML=''},r=x=>n(a('.marquee-chunk'),z=>n(Array(s(x/1000)).fill(),_=>z.after(z.cloneNode(1))));r(this.innerWidth)
 </script>
 <script src="public/js/event-handling.js" defer></script>

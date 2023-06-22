@@ -1,3 +1,5 @@
+let page = q('.page');
+
 
 /*---FORM SUBMIT---*/
 let form = q('#chart-form');
@@ -25,7 +27,7 @@ form.onsubmit = async (e) => {
     }
 
     chartarea.innerHTML = chart;
-    chart_container.scrollIntoView(true);
+    page.scrollTop = chart_container.offsetTop;
 };
 
 /*---SAVE PLAYLIST CLICK---*/
