@@ -48,7 +48,7 @@ function insert(from, to, opt = {metadata: {}, update: false}) {
 function sort_by_letter(set) {
     let dict = {};
     set.forEach((e => {
-        let l = e.at(0).toLowerCase();
+        let l = e.name.at(0).toLowerCase();
         dict[l] = (dict[l] == undefined) ? [e] : dict[l].concat([e]);
     }))
     return dict;

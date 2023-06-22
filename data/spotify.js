@@ -18,8 +18,8 @@ const std_get = async (access_token, url, params = {}) => {
 async function get_auth(code, redirect_uri, auth_token) {
     const url = 'https://accounts.spotify.com/api/token';
     const body = querystring.stringify({
-        code: code,
-        redirect_uri: redirect_uri,
+        code,
+        redirect_uri,
         grant_type: 'authorization_code'
     });
 
@@ -37,7 +37,7 @@ async function get_auth_from_refresh(refresh_token, auth_token) {
     const url = 'https://accounts.spotify.com/api/token';
     const body = querystring.stringify({
         grant_type: 'refresh_token',
-        refresh_token: refresh_token
+        refresh_token,
     });
 
     const response = await axios.post(url, body, {

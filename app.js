@@ -19,7 +19,10 @@ app.use(session({
     secret: gen_rand_str(36),
     resave: true,
     saveUninitialized: true,
-    cookie: { maxAge: 3600000 },
+    cookie: { 
+        sameSite: 'lax',
+        maxAge: 3600000,
+    },
 }));
 
 const hbs = exphbs.create({

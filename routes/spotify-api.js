@@ -10,12 +10,13 @@
 const strings = require('../src/utils/strings');
 const charts = require('../src/utils/charts');
 const objects = require('../src/utils/objects');
-const { spotify_data, user_data } = require('../data');
+const { spotify_data, spotify_mod, user_data } = require('../data');
 
 const express = require('express');
 const router = express.Router();
 const querystring = require('querystring');
 const axios = require('axios');
+const { access } = require('fs');
 
 require("dotenv").config();
 
@@ -27,57 +28,58 @@ const client_secret = process.env.CLIENT_SECRET;
 const redirect_uri = `http://${hostname}:${port}/callback`;
 const auth_token = new Buffer.from(client_id + ':' + client_secret).toString('base64');
 
+const create_trackname = async (user, access_token) => {
+    let past_tracks = objects.unique_values(user.past_tops.tracks.short_term);
+    past_tracks = await spotify_data.get_group(access_token, 'tracks', Array.from(past_tracks));
+    past_tracks = past_tracks.map(k => ({ name: k.name, uri: k.uri }));
+    let dict = objects.sort_by_letter(new Set(past_tracks));
+    const span = (str, found) => {
+        return `<span${(!found) ? ` class="tl-letter"` : ''}>${str}</span>`;
+    };
+    return strings.string_to_tracklist(user.username, dict, span);
+};
+
 router.get('/', async (req, res) => {
     let access_token = req.session.access_token;
-    if (!access_token) res.redirect('/login');
-    else { 
-        try {
-            if (!req.session.user)
-                req.session.user = await spotify_data.get_curr_user_id(access_token);
-            
-            let username = req.session.user;
-            let user = await user_data.get_user(username);
+    if (!access_token) {
+        res.redirect('/login');
+        return;
+    }
+    
+    try {
+        if (!req.session.user)
+            req.session.user = await spotify_data.get_curr_user_id(access_token);
+        
+        let username = req.session.user;
+        let user = await user_data.get_user(username);
 
-            /*--- BUILD USERNAME TRACKLIST ---*/
-            const create_trackname = async  _ => {
-                let past_tracks = objects.unique_values(user.past_tops.tracks.short_term);
-                past_tracks = await spotify_data.get_group(access_token, 'tracks', Array.from(past_tracks));
-                past_tracks = objects.get_from_items(past_tracks, 'name')
-                let dict = objects.sort_by_letter(new Set(past_tracks));
-                const span = (str, found) => {
-                    return `<span${(!found) ? ` class="tl-letter"` : ''}>${str}</span>`;
-                };
-                return strings.string_to_tracklist(username, dict, span).join('');
-            };
-            
-            let trackname = await create_trackname();
-
-            /*--- BUILD CHART ---*/
-            let options = { count: 10, type: 'artists', time_range: 'short_term' }
-            let data = await user_data.compile_user_chart_data(user, access_token, options);
-            let chart = charts.build_user_chart(data, options.count);
-            
-            /*--- RENDER HANDLEBARS ---*/
-            res.render('index', { 
-                title: 'Spotify Stats',
-                display_name: user.display_name,
-                username,
-                trackname, 
-                artists: objects.format_top(user.top, 'artists'),
-                tracks: objects.format_top(user.top, 'tracks'),
-                genres: objects.format_top(user.top, 'genres'),
-                form: { max: spotify_data.MAX_QUERY_LENGTH, ...options },
-                chart,
-            });
-        } catch (e) {
-            res.send({ error: e });
-        }
+        let trackname = await create_trackname(user, access_token);
+        
+        /*--- BUILD CHART ---*/
+        let options = { count: 10, type: 'artists', time_range: 'short_term' }
+        let data = await user_data.compile_user_chart_data(user, access_token, options);
+        let chart = charts.build_user_chart(data, options);
+        
+        /*--- RENDER HANDLEBARS ---*/
+        res.render('index', {
+            title: 'Spotify Stats',
+            display_name: user.display_name,
+            username,
+            trackname: trackname.html.join(''),
+            artists: objects.format_top(user.top, 'artists'),
+            tracks: objects.format_top(user.top, 'tracks'),
+            genres: objects.format_top(user.top, 'genres'),
+            form: { max: spotify_data.MAX_QUERY_LENGTH, ...options },
+            chart,
+        });
+    } catch (e) {
+        res.send({ error: e });
     }
 });
 
 router.get('/login', async (req, res) => {
     let state = strings.gen_rand_str(16);
-    let scope = 'user-read-private user-read-email user-top-read';
+    let scope = 'user-top-read playlist-modify-public playlist-modify-private';
 
     res.redirect('https://accounts.spotify.com/authorize?' +
         querystring.stringify({
@@ -124,16 +126,35 @@ router.post('/refresh_chart', async (req, res) => {
     }
 
     try {
+        let options = { count, type, time_range }
         let user = await user_data.get_user(username);
-        let data = await user_data.compile_user_chart_data(user, access_token, {
-            count, type, time_range
-        });
-        console.log(data)
-        let chart = charts.build_user_chart(data, count);
+        let data = await user_data.compile_user_chart_data(user, access_token, options);
+        let chart = charts.build_user_chart(data, options);
 
         res.json({ chart });
     } catch(e) {
         res.json({ error: e });
+    }
+});
+
+router.get('/save_playlist', async (req, res) => {
+    let access_token = req.session.access_token,
+        username = req.session.user;
+    if (!access_token || !username) res.redirect('/login');
+    
+    let user = await user_data.get_user(username);
+    let trackname = await create_trackname(user, access_token);
+
+    try {
+        await spotify_mod.create_playlist(access_token, username, {
+            name: username,
+            public: false,
+            uris: trackname.uri
+        });
+        res.status(200).json({ saved: true });
+    } catch (e) {
+        let { status, message } = e.response.data.error
+        res.status(status).json({ error: message });
     }
 });
 

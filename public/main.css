@@ -106,6 +106,24 @@ section {
     color: #666;
 }
 
+#trackname button {
+    position: absolute;
+    top: 0;
+    background: var(--std-bkgd);
+    color: #fff;
+    padding: 0 10px;
+    border: none;
+    z-index: 1;
+}
+
+#trackname button:first-of-type {
+    left: 0;
+}
+
+#trackname button:last-of-type {
+    right: 0;
+}
+
 .heading {
     display: block;
     position: relative;

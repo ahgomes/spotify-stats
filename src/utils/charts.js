@@ -141,10 +141,11 @@ function plot(data, layout = {}) {
     `;
 }
 
-function build_user_chart(data, max) {
+function build_user_chart(data, options) {
+    let { type, count:max } = options
     let min = 1;
 
-    let keys = Object.keys(data).map(k => k.split(/%(.*)/)[1]);
+    let keys = (k => type != 'genres' ? k.map(e => e.split(/%(.*)/)[1]) : k)(Object.keys(data));
     let values = Object.values(data);
     values = values.map(x => x.map(y => max - y));
 

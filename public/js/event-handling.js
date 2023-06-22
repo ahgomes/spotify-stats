@@ -1,4 +1,5 @@
 
+/*---FORM SUBMIT---*/
 let form = q('#chart-form');
 let chart_container = q('#chart');
 let chartarea = q('.chartarea');
@@ -15,7 +16,7 @@ form.onsubmit = async (e) => {
     }).then(raw => raw.json());
     
     let { error, chart } = res;
-
+    
     // TODO: error handling
 
     if (error) {
@@ -25,4 +26,19 @@ form.onsubmit = async (e) => {
 
     chartarea.innerHTML = chart;
     chart_container.scrollIntoView(true);
+};
+
+/*---SAVE PLAYLIST CLICK---*/
+const save_playlist = async _ => {
+    let { error } = await fetch('/save_playlist', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+    }).then(raw => raw.json()) 
+
+    if (error) {
+        console.log(error);
+        return;
+    }
+
+    // TODO: saved notification
 };
