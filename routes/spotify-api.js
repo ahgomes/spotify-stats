@@ -54,6 +54,9 @@ router.get('/', async (req, res) => {
         let user = await user_data.get_user(username);
 
         let trackname = await create_trackname(user, access_token);
+
+        let scores = objects.get_from_items(user.top.tracks.short_term, 'popularity')
+        let popularity = scores.reduce((a, b) => a + b) / scores.length;
         
         /*--- BUILD CHART ---*/
         let options = { count: 10, type: 'artists', time_range: 'short_term' }
@@ -66,6 +69,7 @@ router.get('/', async (req, res) => {
             display_name: user.display_name,
             username,
             trackname: trackname.html.join(''),
+            popularity,
             artists: objects.format_top(user.top, 'artists'),
             tracks: objects.format_top(user.top, 'tracks'),
             genres: objects.format_top(user.top, 'genres'),

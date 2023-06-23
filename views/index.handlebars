@@ -1,14 +1,22 @@
 <section class="page" onresize="r(window.innerWidth)">
     {{> trackname trackname=trackname }}
-    <div class="heading">
+    <div class="heading page-heading">
         <h1>{{display_name}}</h1><span>:{{username}}</span>
         <a href="https://open.spotify.com/" target="_blank">
             <img id="logo" src="public/assets/Spotify_Logo_RGB_White.png" alt="spotify logo" />
         </a>
     </div>
     <section class="curr-lists">
-        <h2>your current tops</h2>
-        <div>
+        <div class="heading curr-head">
+            <h2>your current tops</h2>
+            <div id="popularity" title="popularity of your music taste">
+                <span>popularity:</span>
+                <i>0</i>
+                <span id="pop-ind" style="padding-left: calc({{popularity}}px - 1ch);">*</span>
+                <i>100</i>
+            </div>
+        </div>
+        <div class="list-set">
             {{> top-list type='artists' top=artists }}
             {{> top-list type='tracks' top=tracks }}
             {{> top-list type='genres' top=genres }}

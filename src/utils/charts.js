@@ -55,7 +55,7 @@ function plot(data, layout = {}) {
 
     let padding = layout.padding ?? 0;
     let height = layout.height ?? range;
-    let width = /*layout.width ??*/ Math.max(...data.map(x => x.length));
+    let width = /*layout.width ??*/ data[0].length;
     let colors = layout.colors ?? [];
     let style = layout.style ?? 'curved';
     let title = layout.title ?? '';

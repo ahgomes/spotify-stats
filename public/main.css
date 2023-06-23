@@ -145,16 +145,17 @@ section.page {
     padding: 10px 0;
 }
 
-.heading span {
-    color: #888;
-}
-
-.heading h1 {
+.heading h1,
+.heading h2 {
     display: inline-block;
     margin: 0;
 }
 
-.heading #logo {
+.page-heading span {
+    color: #888;
+}
+
+.page-heading #logo {
     display: inline-block;
     position: absolute;
     top: calc(var(--std-margin) / 2);
@@ -162,9 +163,27 @@ section.page {
     height: 24px;
 }
 
-section.curr-lists div {
+section.curr-lists .list-set {
     display: flex;
     flex-wrap: wrap;
+}
+
+#popularity {
+    display: inline-block;
+    position: absolute;
+    top: calc(var(--std-margin) / 2);
+    right: 0;
+}
+
+#popularity i {
+    color: #888;
+}
+
+#pop-ind {
+    display: inline-block;
+    width: 100px;
+    background: #f00;
+    box-sizing: border-box;
 }
 
 .top-section {
